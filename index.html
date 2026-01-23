@@ -120,6 +120,21 @@
     }
     .infoBox.show{display:block}
 
+    /*
+      Animations für das Rollen‑Reveal: die Karte fährt beim
+      Öffnen von unten ins Bild und bleibt dann stehen.  Die Klasse
+      „slide-in“ wird durch showReveal() gesetzt, um den
+      Übergang auszulösen.  Ohne diese Klasse befindet sich die Karte
+      außerhalb des sichtbaren Bereichs.
+    */
+    #sReveal .card{
+      transform: translateY(80%);
+      transition: transform 0.35s ease;
+    }
+    #sReveal .card.slide-in{
+      transform: translateY(0);
+    }
+
     .footer{
       position:fixed; left:0; right:0;
       bottom:max(12px, var(--safeBottom));
@@ -137,11 +152,23 @@
     }
     .footer button.show{display:block}
 
+    /*
+      Die zwei Sound‑Toggles auf dem Startscreen sollen sich nie überlappen.
+      Deshalb nutzen wir ein zweispaltiges Grid und lassen die Labels die
+      verfügbare Breite einnehmen. Bei Bedarf umbrochen die Elemente auf
+      kleineren Bildschirmen einfach in die nächste Zeile.
+    */
     .miniToggles{
-      display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:12px;
+      display:grid;
+      grid-template-columns:repeat(2, 1fr);
+      gap:10px;
+      margin-top:12px;
     }
     .toggle{
-      display:inline-flex; align-items:center; gap:8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
       border:1px solid var(--stroke);
       background:#ffffff10;
       padding:10px 12px;
@@ -150,7 +177,68 @@
       font-weight:800;
       font-size:14px;
     }
-    .toggle input{transform:scale(1.15)}
+    /* Checkbox in den Umschaltern leicht vergrößern und mit Abstand versehen */
+    /* Individuelle Checkbox-Gestaltung für die Umschalter "Sounds" und "Stimme".  Die
+       nativen Checkboxen von iOS/Browsern werden ausgeblendet und durch eine
+       eigene Darstellung ersetzt.  Dadurch lässt sich der Haken zuverlässig
+       zentrieren und es kommt nicht zu Verschiebungen wie auf einigen
+       iPhones/Vorschaufenstern. */
+    .toggle input{
+      -webkit-appearance:none;
+      appearance:none;
+      width:26px;
+      height:26px;
+      border:1px solid var(--stroke);
+      border-radius:6px;
+      background:#0b1020cc;
+      position:relative;
+      margin-right:4px;
+    }
+    /* In der checked‑Variante wird das Häkchen als Pseudo‑Element eingefügt.  Es
+       sitzt mit top/left 50% und translate(-50%, -50%) exakt in der Mitte der
+       Box. */
+    .toggle input:checked::before{
+      content:'✔';
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%, -50%);
+      font-size:16px;
+      color:var(--text);
+    }
+
+    /* Icons (Emojis) innerhalb der Umschalter kleiner darstellen */
+    .toggleIcon{
+      font-size:18px;
+      line-height:1;
+    }
+
+    /* Texte innerhalb der Umschalter nicht umbrechen */
+    .toggleText{
+      white-space:nowrap;
+    }
+
+    /* Bei sehr schmalen Bildschirmen die beiden Toggles untereinander anzeigen,
+       damit die Beschriftungen nicht abgeschnitten werden. */
+    /* Bei schmalen Bildschirmen die beiden Toggles untereinander anzeigen,
+       damit nichts abgeschnitten oder verschoben wird.  Wir verwenden
+       600px als Schwelle, da iPhones und viele andere Handys breiter
+       als 400px sind. */
+    @media (max-width: 600px){
+      .miniToggles{
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Spezielle Anpassungen für die Sound/Voice‑Toggles:
+       Die allgemeinen .icon‑Klasse wird für Rollensymbole mit großer
+       Schrift verwendet – in den Toggles sollen die Emojis kleiner und
+       zentriert dargestellt werden.  Durch diese Regel bekommen nur die
+       Icons innerhalb der miniToggles eine kleinere Schriftgröße.  */
+    .miniToggles .icon{
+      font-size: 20px;
+      line-height: 1;
+    }
     .toast{
       position:fixed;
       top:max(12px, var(--safeTop));
@@ -194,8 +282,20 @@
     </div>
 
     <div class="miniToggles">
-      <label class="toggle"><input id="tSound" type="checkbox" checked> 🔊 Sounds</label>
-      <label class="toggle"><input id="tVoice" type="checkbox" checked> 🎙️ Stimme</label>
+      <!-- Umschalter für Sounds und Stimme mit eigener Emoji und Text.
+           Jede Schaltfläche besteht aus einem Checkbox‑Feld, einem Emoji
+           und einem kurzen Text.  Dadurch bleiben die Elemente in einer
+           Reihe und sind auf allen Geräten korrekt ausgerichtet. -->
+      <label class="toggle">
+        <input id="tSound" type="checkbox" checked>
+        <span class="toggleIcon">🔊</span>
+        <span class="toggleText">Sounds</span>
+      </label>
+      <label class="toggle">
+        <input id="tVoice" type="checkbox" checked>
+        <span class="toggleIcon">🎙️</span>
+        <span class="toggleText">Stimme</span>
+      </label>
     </div>
 
     <div class="installTip">
@@ -275,9 +375,7 @@
       <button id="sfxBtn">SFX nochmal</button>
     </div>
     <div class="infoBox" id="roleInfoBox"></div>
-    <div class="muted" style="margin-top:10px;font-size:13px">
-      Nach 3 Sekunden erscheint unten „Nächster Spieler“.
-    </div>
+    <!-- Hinweis zum Next‑Button entfernt: der Button erscheint nach 3 Sekunden automatisch ohne Text. -->
   </div>
 </section>
 
@@ -292,6 +390,72 @@
     </div>
     <div class="muted" style="margin-top:10px;font-size:13px">
       Grundversion: Ansagen + Flow. (Voting/Actions können wir danach ergänzen.)
+    </div>
+  </div>
+</section>
+
+<!--
+  Neue Interaktions-Screens für Nachtphase und Abstimmung.
+  1. Werwölfe wählen ein Opfer.
+  2. Hexe entscheidet (heilen, vergiften, nichts).
+  3. Hexe vergiftet einen Spieler.
+  4. Anzeige der Opfer der Nacht.
+  5. Abstimmung am Tag: ein Spieler wird gewählt und eliminiert.
+-->
+
+<section id="sChooseVictim" class="screen">
+  <div class="card">
+    <div class="pill">🐺 Opfer wählen</div>
+    <h2>Werwolf‑Opfer wählen</h2>
+    <div id="victimList" class="list"></div>
+    <div class="row">
+      <button id="cancelChooseVictim">Abbrechen</button>
+    </div>
+  </div>
+</section>
+
+<section id="sWitchAction" class="screen">
+  <div class="card">
+    <div class="pill">🧪 Hexe</div>
+    <h2>Hexe handelt</h2>
+    <div class="muted">Opfer: <span id="currentVictimName">–</span></div>
+    <div class="row" style="margin-top:16px">
+      <button id="witchHeal" class="primary">Opfer heilen</button>
+      <button id="witchPoison">Vergiften</button>
+      <button id="witchSkip">Nichts tun</button>
+    </div>
+  </div>
+</section>
+
+<section id="sWitchPoison" class="screen">
+  <div class="card">
+    <div class="pill">🧪 Vergiften</div>
+    <h2>Ziel zum Vergiften wählen</h2>
+    <div id="poisonList" class="list"></div>
+    <div class="row">
+      <button id="cancelPoison">Abbrechen</button>
+    </div>
+  </div>
+</section>
+
+<section id="sDayResult" class="screen">
+  <div class="card">
+    <div class="pill">☀️ Tag</div>
+    <h2>Nacht‑Ergebnis</h2>
+    <div id="deadList" class="muted" style="margin-top:8px"></div>
+    <div class="row" style="margin-top:16px">
+      <button id="startVoting" class="primary">Zur Abstimmung</button>
+    </div>
+  </div>
+</section>
+
+<section id="sVote" class="screen">
+  <div class="card">
+    <div class="pill">🗳️ Abstimmung</div>
+    <h2>Wählt einen Verdächtigen</h2>
+    <div id="voteList" class="list"></div>
+    <div class="row" style="margin-top:16px">
+      <button id="endVote" class="primary">Abstimmung beenden</button>
     </div>
   </div>
 </section>
@@ -415,17 +579,65 @@ function sfx(roleKey){
       playToneSweep({from:440,to:440,dur:0.10,vol:0.09,type:"sine"});
   }
 }
+/* -------------------------------------
+   Sprachwiedergabe
+
+   Für die Textausgabe verwenden wir speechSynthesis.  Auf iOS/Chrome
+   stehen verschiedene Stimmen zur Verfügung.  Wir wählen automatisch
+   eine natürliche deutsche Stimme (z.B. "Anna", "Helena", "Markus", etc.)
+   und verwenden leicht angepasste Rate/Pitch‑Werte.  Wenn keine passende
+   Stimme gefunden wird, verwenden wir die Standardsprache "de-DE".
+
+   Die Stimmenliste wird asynchron geladen, daher registrieren wir
+   "onvoiceschanged", um die erste verfügbare Stimme zu bestimmen.  Die
+   Einstellungen (Rate, Pitch, Volume) wurden für ein iPhone 12 Pro mit
+   aktuellem iOS optimiert, lassen sich aber bei Bedarf anpassen.
+*/
+let bestVoice = null;
+function pickBestVoice(){
+  const voices = speechSynthesis.getVoices() || [];
+  const preferred = [
+    "Anna", "Helena", "Markus", "Yannick",
+    "de-DE", "Deutsch"
+  ];
+  for(const p of preferred){
+    const v = voices.find(x => (x.name || '').includes(p));
+    if(v) return v;
+  }
+  // Fallback: beliebige deutsche Stimme oder erste verfügbare Stimme
+  return voices.find(v => v.lang && v.lang.toLowerCase().startsWith('de')) || voices[0] || null;
+}
 function speak(text){
-  if (!$("tVoice").checked) return;
-  if (!("speechSynthesis" in window)) return;
+  // Wenn die Sprachausgabe ausgeschaltet ist, sofort abbrechen
+  const voiceToggle = document.getElementById('tVoice');
+  if(voiceToggle && !voiceToggle.checked) return;
+  if(!('speechSynthesis' in window)) return;
   try{
     window.speechSynthesis.cancel();
+    if(!bestVoice){
+      bestVoice = pickBestVoice();
+    }
     const u = new SpeechSynthesisUtterance(text);
-    u.lang="de-DE"; u.rate=0.95; u.pitch=1.0; u.volume=1.0;
+    if(bestVoice){
+      u.voice = bestVoice;
+      u.lang  = bestVoice.lang || 'de-DE';
+    } else {
+      u.lang = 'de-DE';
+    }
+    // Natürliches Tempo/Pitch.  Bei Bedarf anpassen.
+    u.rate   = 0.95;
+    u.pitch  = 1.0;
+    u.volume = 1.0;
     window.speechSynthesis.speak(u);
   }catch(e){}
 }
-document.addEventListener("click", ()=>unlockAudio(), {passive:true});
+// iOS: Stimmen sind manchmal erst nach dem Laden verfügbar
+if('speechSynthesis' in window){
+  speechSynthesis.onvoiceschanged = () => {
+    bestVoice = pickBestVoice();
+  };
+}
+document.addEventListener('click', () => unlockAudio(), {passive:true});
 
 /* Names */
 let players = [];
@@ -456,6 +668,21 @@ function minVillagers(n){ return 1; }
 /* Deck builders */
 let deck = [];
 let dealIndex = 0;
+
+/*
+  Spielerlisten und Nachtstatus
+  alivePlayers: enthält alle Spieler, die noch leben.  Wird bei Beginn aus
+  players kopiert und jedes Mal nach einer Nacht/Voting aktualisiert.
+  pendingVictim: Name des Opfers, das die Werwölfe gewählt haben.
+  savedVictim: Name des Opfers, das von der Hexe gerettet wurde.
+  poisonVictim: Name des Spielers, den die Hexe vergiftet.
+  deathLastNight: Liste der in der letzten Nacht Gestorbenen (vor der Abstimmung).
+*/
+let alivePlayers = [];
+let pendingVictim = null;
+let savedVictim = null;
+let poisonVictim = null;
+let deathLastNight = [];
 
 function shuffle(a){
   for(let i=a.length-1;i>0;i--){
@@ -626,11 +853,22 @@ function showReveal(){
   sfx(currentRoleKey);
   speak(r.name);
 
+  // Nächster-Spieler-Button ausblenden und später wieder einblenden
   $("nextPlayerBtn").classList.remove("show");
   if (nextTimer) clearTimeout(nextTimer);
   nextTimer = setTimeout(()=>$("nextPlayerBtn").classList.add("show"), 3000);
 
+  // Reveal-Screen anzeigen
   show("sReveal");
+
+  // Slide-In Animation: Karte erst zurücksetzen, dann Klasse hinzufügen
+  const card = screens.sReveal.querySelector('.card');
+  if (card){
+    card.classList.remove('slide-in');
+    // Force reflow, damit das Entfernen der Klasse wirkt
+    void card.offsetHeight;
+    card.classList.add('slide-in');
+  }
 }
 function nextPlayer(){
   unlockAudio();
@@ -648,9 +886,10 @@ function nextPlayer(){
 /* Round flow (basic) */
 let roundStep = 0;
 function startRound(){
-  roundStep = 0;
-  show("sRound");
-  renderRoundStep();
+  // Beginn einer neuen Nacht- und Tag-Sequenz.
+  // Wir überspringen die alte Schrittsteuerung und starten
+  // direkt die Nachtphase mit den neuen Interaktionen.
+  startNight();
 }
 function renderRoundStep(){
   const hasSeer = deck.includes("seer");
@@ -681,6 +920,10 @@ $("addName").addEventListener("click", ()=>{
 $("namesDone").addEventListener("click", ()=>{
   players = getNames();
   if (players.length < 3){ toast("Mindestens 3 Namen eingeben 🙂"); return; }
+
+  // Kopiere alle Spieler in alivePlayers – diese Liste wird bei
+  // Nachtaktionen und Abstimmungen angepasst.
+  alivePlayers = players.slice();
   show("sMode");
 });
 $("modeRandom").addEventListener("click", ()=>{ beginDeal(buildRandomDeck()); });
@@ -706,6 +949,145 @@ $("nextPlayerBtn").addEventListener("click", nextPlayer);
 
 $("roundNext").addEventListener("click", ()=>{ unlockAudio(); roundStep++; renderRoundStep(); });
 $("roundEnd").addEventListener("click", ()=>{ if (confirm("Spiel beenden?")) show("sStart"); });
+
+/* ====================================================================
+   Nacht‑ und Tag‑Ablauf mit Opferaushwahl, Hexen‑Aktionen und Abstimmung
+   ==================================================================== */
+
+function startNight(){
+  // Rücksetzen der Nachtvariablen
+  pendingVictim = null;
+  savedVictim = null;
+  poisonVictim = null;
+  deathLastNight = [];
+  // Werwölfe wählen ein Opfer
+  chooseVictim();
+}
+
+function chooseVictim(){
+  // Fülle die Liste der möglichen Opfer (alle lebenden Spieler)
+  const list = $("victimList");
+  list.innerHTML = "";
+  alivePlayers.forEach(name => {
+    const btn = document.createElement('button');
+    btn.textContent = name;
+    btn.className = 'primary';
+    btn.style.marginBottom = '8px';
+    btn.onclick = () => {
+      pendingVictim = name;
+      // Nach Auswahl direkt zur Hexe
+      witchAction();
+    };
+    list.appendChild(btn);
+  });
+  show('sChooseVictim');
+}
+
+function witchAction(){
+  // Wenn keine Hexe im Deck ist, direkt Ergebnisse anwenden
+  if (!deck.includes('witch')){
+    applyNightResults();
+    return;
+  }
+  // Opfer anzeigen
+  $("currentVictimName").textContent = pendingVictim || '–';
+  show('sWitchAction');
+}
+
+function choosePoison(){
+  // Fülle die Liste möglicher Vergiftungsziele (alle lebenden Spieler außer dem aktuellen Opfer)
+  const list = $("poisonList");
+  list.innerHTML = "";
+  alivePlayers.forEach(name => {
+    if (name === pendingVictim) return;
+    const btn = document.createElement('button');
+    btn.textContent = name;
+    btn.className = 'primary';
+    btn.style.marginBottom = '8px';
+    btn.onclick = () => {
+      poisonVictim = name;
+      applyNightResults();
+    };
+    list.appendChild(btn);
+  });
+  show('sWitchPoison');
+}
+
+function applyNightResults(){
+  // Ermitteln der Opfer der Nacht
+  deathLastNight = [];
+  if (pendingVictim && pendingVictim !== savedVictim) deathLastNight.push(pendingVictim);
+  if (poisonVictim) deathLastNight.push(poisonVictim);
+  // Doppelte entfernen
+  deathLastNight = Array.from(new Set(deathLastNight));
+  // Lebende Spieler aktualisieren
+  if (deathLastNight.length > 0){
+    alivePlayers = alivePlayers.filter(n => !deathLastNight.includes(n));
+  }
+  // Anzeige der Opfer
+  const dl = $("deadList");
+  if (deathLastNight.length > 0){
+    dl.textContent = 'Gestorben: ' + deathLastNight.join(', ');
+  } else {
+    dl.textContent = 'Niemand ist gestorben.';
+  }
+  show('sDayResult');
+}
+
+function startVoting(){
+  // Liste der Verdächtigen (alle lebenden Spieler)
+  const list = $("voteList");
+  list.innerHTML = "";
+  alivePlayers.forEach(name => {
+    const btn = document.createElement('button');
+    btn.textContent = name;
+    btn.className = 'primary';
+    btn.style.marginBottom = '8px';
+    btn.onclick = () => {
+      executeVote(name);
+    };
+    list.appendChild(btn);
+  });
+  show('sVote');
+}
+
+function executeVote(name){
+  // Entferne den Spieler aus der Liste der Lebenden
+  if (!name) return;
+  alivePlayers = alivePlayers.filter(n => n !== name);
+  toast(name + ' wurde gelyncht');
+  // Bei weniger als 3 Lebenden ist das Spiel beendet
+  if (alivePlayers.length < 3){
+    alert('Spiel beendet.');
+    show('sStart');
+  } else {
+    // Neue Nacht beginnt
+    startNight();
+  }
+}
+
+/* Event‑Listener für neue Screens */
+$("cancelChooseVictim").addEventListener("click", ()=>{
+  // Zurück ohne Auswahl – Spieler müssen erneut beginnen oder Runde fortsetzen
+  show('sRound');
+});
+$("witchHeal").addEventListener("click", ()=>{
+  savedVictim = pendingVictim;
+  applyNightResults();
+});
+$("witchPoison").addEventListener("click", choosePoison);
+$("witchSkip").addEventListener("click", ()=>{
+  applyNightResults();
+});
+$("cancelPoison").addEventListener("click", ()=>{
+  poisonVictim = null;
+  witchAction();
+});
+$("startVoting").addEventListener("click", startVoting);
+$("endVote").addEventListener("click", ()=>{
+  // Wenn kein Verdächtiger gewählt wurde, einfach neue Nacht starten
+  startNight();
+});
 
 /* Swipe-Up: Handoff -> Reveal */
 let startY=null;
