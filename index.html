@@ -890,7 +890,9 @@ function startRound(){
   // Beginn einer neuen Nacht- und Tag-Sequenz.
   // Wir überspringen die alte Schrittsteuerung und starten
   // direkt die Nachtphase mit den neuen Interaktionen.
-  startNight();
+   roundStep = 0;
+  show("sRound");
+  renderRoundStep();
 }
 function renderRoundStep(){
   const hasSeer = deck.includes("seer");
