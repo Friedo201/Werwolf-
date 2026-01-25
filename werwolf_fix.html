@@ -1,0 +1,623 @@
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <!-- iOS "Standalone"/Web-App Einstellungen -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Werwolf">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#070a14">
+
+  <title>Werwolf</title>
+
+  <style>
+    :root{
+      --bg1:#070a14; --bg2:#140a1c;
+      --card:#0f1627cc; --stroke:#ffffff1f;
+      --text:#f4f6ff; --muted:#c9cfffa8;
+      --btn:#ffffff14; --btn2:#fff; --btn2t:#111;
+      --r:18px; --shadow: 0 18px 60px rgba(0,0,0,.55);
+      --safeTop: env(safe-area-inset-top);
+      --safeBottom: env(safe-area-inset-bottom);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; color:var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background:
+        radial-gradient(1200px 700px at 20% 10%, #2a3cff2a, transparent 60%),
+        radial-gradient(1000px 700px at 80% 30%, #ff2ab32a, transparent 60%),
+        radial-gradient(900px 700px at 50% 90%, #22ffc82a, transparent 60%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      overflow:hidden;
+      -webkit-user-select:none;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Standalone "App Feeling" */
+    body.standalone{
+      overscroll-behavior: none;
+    }
+
+    .screen{
+      min-height:100vh;
+      padding: max(16px, var(--safeTop)) 16px max(18px, var(--safeBottom));
+      display:none;
+      align-items:center; justify-content:center;
+      text-align:center;
+    }
+    .screen.show{display:flex}
+    .card{
+      width:min(620px, 94vw);
+      background:var(--card);
+      border:1px solid var(--stroke);
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
+      padding:18px 16px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .pill{
+      display:inline-flex; gap:10px; align-items:center;
+      border:1px solid var(--stroke);
+      background:#ffffff12;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px; color:var(--muted);
+    }
+    h1,h2,h3{margin:10px 0}
+    .muted{color:var(--muted)}
+    .row{display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:12px}
+    button{
+      appearance:none; border:1px solid var(--stroke);
+      background:var(--btn); color:var(--text);
+      padding:14px 16px; border-radius:16px;
+      font-size:16px; font-weight:850;
+      cursor:pointer;
+    }
+    button.primary{background:var(--btn2); color:var(--btn2t); border-color:#ffffff55}
+    button:disabled{opacity:.35; cursor:not-allowed}
+    button:active{transform:translateY(1px)}
+    input{
+      width:100%;
+      padding:14px 14px;
+      border-radius:16px;
+      border:1px solid var(--stroke);
+      background:#0b1020cc;
+      color:var(--text);
+      font-size:16px;
+      outline:none;
+    }
+    .list{margin-top:12px; display:flex; flex-direction:column; gap:10px}
+    .twoCol{display:grid; grid-template-columns:1fr; gap:10px; margin-top:12px}
+    @media(min-width:520px){ .twoCol{grid-template-columns:1fr 1fr} }
+    .tile{
+      text-align:left;
+      padding:12px;
+      border:1px solid var(--stroke);
+      border-radius:16px;
+      background:#0b1020cc;
+    }
+    .tileTop{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .tileTitle{display:flex; align-items:center; gap:10px; font-weight:900}
+    .count{display:flex; gap:8px; align-items:center}
+    .count button{padding:10px 12px; border-radius:12px; font-size:16px}
+    .badge{font-size:12px; color:var(--muted)}
+    .big{font-size:48px; line-height:1.05; margin:10px 0 10px}
+    .icon{font-size:66px; margin:10px 0 6px; filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))}
+    .infoBox{
+      text-align:left;
+      margin-top:12px;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid var(--stroke);
+      background:#10162bcc;
+      display:none;
+    }
+    .infoBox.show{display:block}
+
+    /* Rollenscreen Slide-In */
+    #sReveal .card{
+      transform: translateY(80%);
+      transition: transform 0.35s ease;
+    }
+    #sReveal .card.slide-in{
+      transform: translateY(0);
+    }
+
+    .footer{
+      position:fixed; left:0; right:0;
+      bottom:max(12px, var(--safeBottom));
+      display:flex; justify-content:center;
+      padding:0 14px;
+      pointer-events:none;
+    }
+    .footer button{
+      width:min(620px, 94vw);
+      pointer-events:auto;
+      display:none;
+      padding:16px 16px;
+      border-radius:18px;
+      font-size:17px;
+    }
+    .footer button.show{display:block}
+
+    .miniToggles{
+      display:grid;
+      grid-template-columns:repeat(2, 1fr);
+      gap:10px;
+      margin-top:12px;
+    }
+    .toggle{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      border:1px solid var(--stroke);
+      background:#ffffff10;
+      padding:10px 12px;
+      border-radius:14px;
+      color:var(--muted);
+      font-weight:800;
+      font-size:14px;
+    }
+    .toggle input{
+      -webkit-appearance:none;
+      appearance:none;
+      width:26px;
+      height:26px;
+      border:1px solid var(--stroke);
+      border-radius:6px;
+      background:#0b1020cc;
+      position:relative;
+      margin-right:4px;
+    }
+    .toggle input:checked::before{
+      content:'✔';
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%, -50%);
+      font-size:16px;
+      color:#ffffff;
+    }
+    .miniToggles .icon{
+      font-size:20px;
+      line-height:1;
+    }
+    .toggleText{white-space:nowrap;}
+    @media (max-width: 600px){
+      .miniToggles{ grid-template-columns: 1fr; }
+    }
+    .toast{
+      position:fixed;
+      top:max(12px, var(--safeTop));
+      left:50%; transform:translateX(-50%);
+      background:#00000088;
+      border:1px solid #ffffff22;
+      padding:10px 12px;
+      border-radius:999px;
+      font-size:13px;
+      opacity:0; pointer-events:none;
+      transition:opacity .2s ease;
+    }
+    .toast.show{opacity:1}
+    .installTip{
+      margin-top:12px;
+      padding:12px;
+      border:1px solid var(--stroke);
+      border-radius:16px;
+      background:#0b1020cc;
+      color:var(--muted);
+      font-size:13px;
+      text-align:left;
+      display:none;
+    }
+    body:not(.standalone) .installTip{display:block}
+  </style>
+</head>
+<body>
+<div class="toast" id="toast">Hinweis</div>
+
+<!-- Startscreen -->
+<section id="sStart" class="screen show">
+  <div class="card">
+    <div class="pill">🐺 Werwolf • Ein-Handy</div>
+    <h1>Werwolf</h1>
+    <div class="muted">Optimiert für Home‑Bildschirm „Standalone“ (wie App).</div>
+    <div class="row" style="margin-top:16px">
+      <button class="primary" id="goNames">Spieler-Namen eingeben</button>
+    </div>
+    <div class="miniToggles">
+      <label class="toggle"><input id="tSound" type="checkbox" checked><span class="toggleIcon">🔊</span><span class="toggleText">Sounds</span></label>
+      <label class="toggle"><input id="tVoice" type="checkbox" checked><span class="toggleIcon">🎙️</span><span class="toggleText">Stimme</span></label>
+    </div>
+    <div class="installTip">
+      <b>Als App hinzufügen (1× nötig):</b><br>
+      Safari öffnen → Teilen → <b>„Zum Home-Bildschirm“</b> → Name: <b>Werwolf</b> → Hinzufügen.<br>
+      Danach nur noch das Icon antippen ✅
+    </div>
+    <div class="muted" style="margin-top:10px;font-size:13px">Tipp: Beim ersten Start einmal tippen, damit iOS Audio freigibt.</div>
+  </div>
+</section>
+
+<!-- Namen eingeben -->
+<section id="sNames" class="screen">
+  <div class="card">
+    <div class="pill">👥 Spieler</div>
+    <h2>Namen eingeben</h2>
+    <div class="muted">Mindestens 3 Spieler.</div>
+    <div class="list" id="nameList"></div>
+    <div class="row">
+      <button id="addName">+ Spieler</button>
+      <button class="primary" id="namesDone">Weiter</button>
+    </div>
+  </div>
+</section>
+
+<!-- Setup Modus wählen -->
+<section id="sMode" class="screen">
+  <div class="card">
+    <div class="pill">🧩 Setup</div>
+    <h2>Karten wählen</h2>
+    <div class="row" style="margin-top:16px">
+      <button class="primary" id="modeRandom">🎲 Zufällig</button>
+      <button id="modeCustom">🛠️ Selbst zusammenstellen</button>
+    </div>
+    <div class="muted" style="margin-top:10px;font-size:13px">
+      Pflicht: immer 1× Hexe, mind. Werwölfe je Spielerzahl, mind. 1× Dorfbewohner.
+    </div>
+  </div>
+</section>
+
+<!-- Custom Deck Zusammenstellung -->
+<section id="sCustom" class="screen">
+  <div class="card">
+    <div class="pill">🛠️ Karten wählen</div>
+    <h2>Zusammenstellung</h2>
+    <div class="muted" id="customHint">—</div>
+    <div class="twoCol" id="roleTiles"></div>
+    <div class="row">
+      <button id="customBack">Zurück</button>
+      <button class="primary" id="customStart" disabled>Rollen austeilen</button>
+    </div>
+    <div class="muted" id="customStatus" style="margin-top:8px;font-size:13px"></div>
+  </div>
+</section>
+
+<!-- Übergabe Screen -->
+<section id="sHandoff" class="screen">
+  <div class="card">
+    <div class="pill">📱 Übergabe</div>
+    <h2>Nächster Spieler:</h2>
+    <div class="big" id="handoffName">—</div>
+    <div class="muted">Wische <b>nach oben</b>, um deine Rolle zu sehen.</div>
+    <div class="row" style="margin-top:16px">
+      <button id="revealTest">Rolle zeigen (Tippen)</button>
+      <button id="abortDeal">Abbrechen</button>
+    </div>
+  </div>
+</section>
+
+<!-- Rollen anzeigen -->
+<section id="sReveal" class="screen">
+  <div class="card">
+    <div class="pill" id="revealPill">👤 Spieler</div>
+    <div class="icon" id="roleIcon">🎭</div>
+    <h1 id="roleName">Rolle</h1>
+    <div class="muted">Schirme den Bildschirm ab 😉</div>
+    <div class="row" style="margin-top:12px">
+      <button id="roleInfoBtn">Was macht diese Karte?</button>
+      <button id="sfxBtn">SFX nochmal</button>
+    </div>
+    <div class="infoBox" id="roleInfoBox"></div>
+  </div>
+</section>
+
+<!-- Runden-Ablauf (vereinfacht) -->
+<section id="sRound" class="screen">
+  <div class="card">
+    <div class="pill">🌙☀️ Runde</div>
+    <h2 id="roundTitle">Nachtphase</h2>
+    <div class="muted" id="roundText">—</div>
+    <div class="row" style="margin-top:16px">
+      <button id="roundNext" class="primary">Weiter</button>
+      <button id="roundEnd">Spiel beenden</button>
+    </div>
+    <div class="muted" style="margin-top:10px;font-size:13px">
+      Grundversion: Ansagen + Flow. (Voting/Actions können wir danach ergänzen.)
+    </div>
+  </div>
+</section>
+
+<!-- Screens für komplexe Nacht/Tag (derzeit ungenutzt) -->
+<section id="sChooseVictim" class="screen">
+  <div class="card">
+    <div class="pill">🐺 Opfer wählen</div>
+    <h2>Werwolf‑Opfer wählen</h2>
+    <div id="victimList" class="list"></div>
+    <div class="row">
+      <button id="cancelChooseVictim">Abbrechen</button>
+    </div>
+  </div>
+</section>
+<section id="sWitchAction" class="screen">
+  <div class="card">
+    <div class="pill">🧪 Hexe</div>
+    <h2>Hexe handelt</h2>
+    <div class="muted">Opfer: <span id="currentVictimName">–</span></div>
+    <div class="row" style="margin-top:16px">
+      <button id="witchHeal" class="primary">Opfer heilen</button>
+      <button id="witchPoison">Vergiften</button>
+      <button id="witchSkip">Nichts tun</button>
+    </div>
+  </div>
+</section>
+<section id="sWitchPoison" class="screen">
+  <div class="card">
+    <div class="pill">🧪 Vergiften</div>
+    <h2>Ziel zum Vergiften wählen</h2>
+    <div id="poisonList" class="list"></div>
+    <div class="row">
+      <button id="cancelPoison">Abbrechen</button>
+    </div>
+  </div>
+</section>
+<section id="sDayResult" class="screen">
+  <div class="card">
+    <div class="pill">☀️ Tag</div>
+    <h2>Nacht‑Ergebnis</h2>
+    <div id="deadList" class="muted" style="margin-top:8px"></div>
+    <div class="row" style="margin-top:16px">
+      <button id="startVoting" class="primary">Zur Abstimmung</button>
+    </div>
+  </div>
+</section>
+<section id="sVote" class="screen">
+  <div class="card">
+    <div class="pill">🗳️ Abstimmung</div>
+    <h2>Wählt einen Verdächtigen</h2>
+    <div id="voteList" class="list"></div>
+    <div class="row" style="margin-top:16px">
+      <button id="endVote" class="primary">Abstimmung beenden</button>
+    </div>
+  </div>
+</section>
+
+<!-- Footer für "Nächster Spieler" -->
+<div class="footer">
+  <button id="nextPlayerBtn" class="primary">Nächster Spieler</button>
+</div>
+
+<script>
+/* Standalone-Erkennung */
+(function(){
+  const isStandalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || (window.navigator && window.navigator.standalone === true);
+  if (isStandalone) document.body.classList.add("standalone");
+})();
+
+const ROLE = {
+  villager:{ name:"Dorfbewohner", icon:"👨‍🌾", info:"Keine Sonderfähigkeit. Tagsüber diskutieren und Werwölfe finden." },
+  werewolf:{ name:"Werwolf", icon:"🐺", info:"Nachts wählt ihr gemeinsam ein Opfer. Ziel: Dorf ausschalten." },
+  witch:{ name:"Hexe", icon:"🧪", info:"1× Heiltrank, 1× Gifttrank. Jeder Trank nur einmal." },
+  seer:{ name:"Seherin", icon:"🔮", info:"Jede Nacht darfst du die Rolle eines Spielers ansehen." },
+  hunter:{ name:"Jäger", icon:"🏹", info:"Wenn du stirbst, darfst du einen Spieler mitnehmen." },
+  cupid:{ name:"Amor", icon:"💘", info:"In der ersten Nacht bestimmst du zwei Verliebte." },
+  little:{ name:"Kleines Mädchen", icon:"👧", info:"Darf nachts vorsichtig spicken (Hausregel-abhängig)." }
+};
+const CUSTOM_ROLES = ["werewolf","villager","witch","seer","hunter","cupid","little"];
+
+const $ = (id)=>document.getElementById(id);
+const screens = ["sStart","sNames","sMode","sCustom","sHandoff","sReveal","sRound"].reduce((a,k)=>(a[k]=$(k),a),{});
+function show(screenId){ Object.values(screens).forEach(s=>s.classList.remove("show")); screens[screenId].classList.add("show"); }
+function toast(msg, ms=1600){ const t = $("toast"); t.textContent = msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), ms); }
+
+/* Audio + Voice */
+let audioCtx=null, audioUnlocked=false;
+function ensureAudio(){ if (audioCtx) return true; try{ const Ctx = window.AudioContext || window.webkitAudioContext; audioCtx = new Ctx(); return true; }catch(e){ return false; } }
+function unlockAudio(){ if (audioUnlocked) return; if (!ensureAudio()) return; const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.0001,t+0.03); o.frequency.setValueAtTime(440,t); o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.03); audioUnlocked=true; }
+function playToneSweep({from=440,to=220,dur=0.6,vol=0.18,type="sine"}){ if (!$("tSound").checked) return; if (!ensureAudio()) return; const t0=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type=type; o.frequency.setValueAtTime(from,t0); o.frequency.exponentialRampToValueAtTime(Math.max(1,to),t0+dur); g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(vol,t0+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t0+dur); o.connect(g); g.connect(audioCtx.destination); o.start(t0); o.stop(t0+dur+0.02); }
+function playNoiseBurst({dur=0.18,vol=0.06}){ if (!$("tSound").checked) return; if (!ensureAudio()) return; const t0=audioCtx.currentTime; const size=Math.floor(audioCtx.sampleRate*dur); const buf=audioCtx.createBuffer(1,size,audioCtx.sampleRate); const d=buf.getChannelData(0); for(let i=0;i<size;i++) d[i]=(Math.random()*2-1)*(1-i/size); const src=audioCtx.createBufferSource(); const g=audioCtx.createGain(); g.gain.setValueAtTime(vol,t0); g.gain.exponentialRampToValueAtTime(0.0001,t0+dur); src.buffer=buf; src.connect(g); g.connect(audioCtx.destination); src.start(t0); }
+function sfx(roleKey){ unlockAudio(); switch(roleKey){ case "werewolf": playToneSweep({from:220,to:660,dur:0.75,vol:0.18,type:"sawtooth"}); setTimeout(()=>playNoiseBurst({dur:0.18,vol:0.06}),120); break; case "witch": playToneSweep({from:520,to:740,dur:0.20,vol:0.12,type:"square"}); setTimeout(()=>playToneSweep({from:620,to:820,dur:0.18,vol:0.10,type:"square"}),180); setTimeout(()=>playToneSweep({from:420,to:680,dur:0.22,vol:0.10,type:"square"}),360); break; case "seer": playToneSweep({from:330,to:990,dur:0.55,vol:0.12,type:"sine"}); break; case "hunter": playToneSweep({from:880,to:220,dur:0.22,vol:0.16,type:"triangle"}); break; case "cupid": playToneSweep({from:660,to:880,dur:0.10,vol:0.10,type:"sine"}); setTimeout(()=>playToneSweep({from:660,to:990,dur:0.12,vol:0.10,type:"sine"}),140); break; case "little": playToneSweep({from:720,to:540,dur:0.18,vol:0.07,type:"sine"}); break; default: playToneSweep({from:440,to:440,dur:0.10,vol:0.09,type:"sine"}); } }
+let bestVoice = null;
+function pickBestVoice(){ const voices = speechSynthesis.getVoices() || []; const preferred = ["Anna", "Helena", "Markus", "Yannick", "de-DE", "Deutsch"]; for(const p of preferred){ const v = voices.find(x => (x.name || '').includes(p)); if(v) return v; } return voices.find(v => v.lang && v.lang.toLowerCase().startsWith('de')) || voices[0] || null; }
+// Sprechfunktion: nicht die Rollennamen vorlesen und leiser sprechen
+function speak(text){
+  // Wenn Stimme deaktiviert ist, nichts tun
+  const voiceToggle = document.getElementById('tVoice');
+  if (voiceToggle && !voiceToggle.checked) return;
+  // Nur sprechen, wenn die API verfügbar ist
+  if (!('speechSynthesis' in window)) return;
+  // Rollennamen sollen nicht ausgesprochen werden, um die Identität geheim zu halten
+  try {
+    // Pruefe, ob der Text exakt dem Namen einer Rolle entspricht
+    if (typeof ROLE !== 'undefined' && Object.values(ROLE).some(r => r && r.name === text)) {
+      return;
+    }
+    window.speechSynthesis.cancel();
+    if (!bestVoice) {
+      bestVoice = pickBestVoice();
+    }
+    const u = new SpeechSynthesisUtterance(text);
+    if (bestVoice){
+      u.voice = bestVoice;
+      u.lang  = bestVoice.lang || 'de-DE';
+    } else {
+      u.lang = 'de-DE';
+    }
+    u.rate   = 0.95;
+    u.pitch  = 1.0;
+    // Lautstärke reduziert, damit die Stimme dezenter ist
+    u.volume = 0.4;
+    window.speechSynthesis.speak(u);
+  } catch(e) {}
+}
+if('speechSynthesis' in window){ speechSynthesis.onvoiceschanged = () => { bestVoice = pickBestVoice(); }; }
+document.addEventListener('click', () => unlockAudio(), {passive:true});
+
+/* Namen */
+let players = [];
+function renderNameInputs(initial=6){ const box = $("nameList"); box.innerHTML=""; for(let i=0;i<initial;i++){ const inp = document.createElement("input"); inp.placeholder = `Name ${i+1}`; box.appendChild(inp); } }
+function getNames(){ const inputs = [...$("nameList").querySelectorAll("input")]; return inputs.map(i=>i.value.trim()).filter(Boolean); }
+
+/* Mindestwerte (ganzzahlig) */
+function minWerewolves(n){ if (n <= 5) return 1; if (n <= 8) return 2; if (n <= 11) return 3; if (n <= 15) return 4; return 5; }
+function minVillagers(n){ return 1; }
+
+/* Deck-Builder */
+let deck = [];
+let dealIndex = 0;
+
+/* Spieler- und Nachtstatus */
+let alivePlayers = [];
+let pendingVictim = null;
+let savedVictim = null;
+let poisonVictim = null;
+let deathLastNight = [];
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function buildRandomDeck(){ const n = players.length; const ww = minWerewolves(n); const fixed = ["witch"]; for(let i=0;i<ww;i++) fixed.push("werewolf"); const optionalPool = ["seer","hunter","cupid","little"]; shuffle(optionalPool); const maxExtras = Math.min(3, Math.max(0, n - fixed.length - 1)); const extras = optionalPool.slice(0, maxExtras); const deckTmp = [...fixed, ...extras]; while(deckTmp.length < n) deckTmp.push("villager"); shuffle(deckTmp); return deckTmp; }
+
+/* Custom */
+let customCounts = {};
+function initCustomCounts(){ customCounts = {}; CUSTOM_ROLES.forEach(k=>customCounts[k]=0); customCounts["witch"]=1; customCounts["werewolf"]=Math.max(customCounts["werewolf"], minWerewolves(players.length)); customCounts["villager"]=Math.max(customCounts["villager"], minVillagers(players.length)); }
+function sumCustom(){ return Object.values(customCounts).reduce((a,b)=>a+b,0); }
+function longPressInfo(el, roleKey){ let t=null; const start = ()=>{ t=setTimeout(()=>alert(`${ROLE[roleKey].name}:\n\n${ROLE[roleKey].info}`), 450); }; const stop  = ()=>{ if(t){clearTimeout(t); t=null;} }; el.addEventListener("touchstart", start, {passive:true}); el.addEventListener("touchend", stop, {passive:true}); el.addEventListener("touchmove", stop, {passive:true}); el.addEventListener("mousedown", start); el.addEventListener("mouseup", stop); el.addEventListener("mouseleave", stop); }
+function renderCustom(){ $("customHint").textContent = `Spieler: ${players.length} • Ziel: genau ${players.length} Karten`; const box = $("roleTiles"); box.innerHTML=""; CUSTOM_ROLES.forEach(roleKey=>{ const t = document.createElement("div"); t.className="tile"; const top = document.createElement("div"); top.className="tileTop"; const title = document.createElement("div"); title.className="tileTitle"; title.innerHTML = `<span style="font-size:22px">${ROLE[roleKey].icon}</span> <span>${ROLE[roleKey].name}</span>`; const cnt = document.createElement("div"); cnt.className="count"; const minus = document.createElement("button"); minus.textContent="−"; const num = document.createElement("div"); num.style.minWidth="28px"; num.style.textAlign="center"; num.style.fontWeight="900"; num.textContent = customCounts[roleKey]; const plus = document.createElement("button"); plus.textContent="+"; const isWitch = roleKey==="witch"; minus.disabled = isWitch; plus.disabled = isWitch; minus.onclick = ()=>{ unlockAudio(); const minWW = minWerewolves(players.length); const minV  = minVillagers(players.length); if (roleKey==="werewolf" && customCounts[roleKey] <= minWW) { toast(`Mindestens ${minWW} Werwölfe 🐺`); return; } if (roleKey==="villager" && customCounts[roleKey] <= minV)  { toast(`Mindestens ${minV} Dorfbewohner 👨‍🌾`); return; } if (customCounts[roleKey] > 0){ customCounts[roleKey]--; renderCustom(); validateCustom(); } };
+    plus.onclick = ()=>{ unlockAudio(); if (sumCustom() >= players.length){ toast("Zu viele Karten – erst woanders reduzieren"); return; } customCounts[roleKey]++; renderCustom(); validateCustom(); };
+    cnt.appendChild(minus); cnt.appendChild(num); cnt.appendChild(plus);
+    top.appendChild(title); top.appendChild(cnt);
+    const badge = document.createElement("div"); badge.className="badge"; badge.textContent = "Langes Drücken: Kurzinfo";
+    t.appendChild(top);
+    t.appendChild(badge);
+    longPressInfo(t, roleKey);
+    box.appendChild(t);
+  }); validateCustom(); }
+function validateCustom(){ const n = players.length; const total = sumCustom(); const wwMin = minWerewolves(n); const vMin  = minVillagers(n); const hasWitch = customCounts["witch"] === 1; const hasWW = customCounts["werewolf"] >= wwMin; const hasV  = customCounts["villager"] >= vMin; const exact = total === n; const ok = (n>=3) && hasWitch && hasWW && hasV && exact; $("customStart").disabled = !ok; let msg = `Karten: ${total}/${n}. `; if (!hasWW) msg += `Zu wenig Werwölfe (min. ${wwMin}). `; if (!hasV)  msg += `Zu wenig Dorfbewohner (min. ${vMin}). `; if (!exact) msg += "Summe muss exakt Spielerzahl sein. "; $("customStatus").textContent = ok ? "✅ Startbereit!" : msg; }
+function buildCustomDeck(){ const n = players.length; const arr=[]; CUSTOM_ROLES.forEach(k=>{ for(let i=0;i<customCounts[k];i++) arr.push(k); }); if (arr.length !== n) return null; shuffle(arr); return arr; }
+
+/* Deal / Reveal */
+let nextTimer=null;
+let currentRoleKey=null;
+function beginDeal(newDeck){ deck = newDeck; dealIndex = 0; show("sHandoff"); $("handoffName").textContent = players[dealIndex]; }
+function showReveal(){ unlockAudio(); const p = players[dealIndex]; currentRoleKey = deck[dealIndex]; const r = ROLE[currentRoleKey] || {name:"Unbekannt", icon:"❓", info:"Keine Info vorhanden."}; $("revealPill").textContent = `👤 Spieler: ${p}`; $("roleIcon").textContent = r.icon; $("roleName").textContent = r.name; $("roleInfoBox").classList.remove("show"); $("roleInfoBox").textContent = ""; sfx(currentRoleKey); speak(r.name); $("nextPlayerBtn").classList.remove("show"); if (nextTimer) clearTimeout(nextTimer); nextTimer = setTimeout(()=>$("nextPlayerBtn").classList.add("show"), 3000); show("sReveal"); const card = screens.sReveal.querySelector('.card'); if (card){ card.classList.remove('slide-in'); void card.offsetHeight; card.classList.add('slide-in'); } }
+function nextPlayer(){ unlockAudio(); dealIndex++; $("nextPlayerBtn").classList.remove("show"); if (dealIndex >= players.length){ toast("Alle Rollen verteilt ✅"); startRound(); return; } show("sHandoff"); $("handoffName").textContent = players[dealIndex]; }
+
+/* Rundenfluss (einfach) */
+let roundStep = 0;
+function startRound(){
+  // Fix: starte einfache Runde ohne komplexe Nachtlogik
+  roundStep = 0;
+  show('sRound');
+  renderRoundStep();
+}
+function renderRoundStep(){
+  // Ermitteln, welche Sonderrollen im Deck vorhanden sind
+  const hasSeer    = deck.includes('seer');
+  const hasWitch   = deck.includes('witch');
+  const hasCupid   = deck.includes('cupid');
+  const hasLittle  = deck.includes('little');
+  const hasHunter  = deck.includes('hunter');
+  // Liste der Schritte zusammenstellen
+  const steps = [];
+  // Nacht beginnt: alle schließen die Augen
+  steps.push({ t:'🌙 Nachtphase', x:'Alle schließen die Augen.' });
+  // Seherin sieht eine Rolle
+  if (hasSeer) steps.push({ t:'🌙 Nachtphase', x:'Seherin wacht auf und wählt einen Spieler (heimlich).' });
+  // Werwölfe wählen ein Opfer
+  steps.push({ t:'🌙 Nachtphase', x:'Werwölfe wachen auf und wählen ein Opfer.' });
+  // Hexe kann heilen oder vergiften
+  if (hasWitch) steps.push({ t:'🌙 Nachtphase', x:'Hexe: Möchtest du heilen oder vergiften?' });
+  // Amor (Cupid) wählt zwei Verliebte
+  if (hasCupid) steps.push({ t:'🌙 Nachtphase', x:'Amor bestimmt zwei Verliebte.' });
+  // Kleines Mädchen darf spicken
+  if (hasLittle) steps.push({ t:'🌙 Nachtphase', x:'Das kleine Mädchen darf vorsichtig spicken.' });
+  // Jäger hat keine nächtliche Aktion, aber kann informiert werden
+  if (hasHunter) steps.push({ t:'🌙 Nachtphase', x:'Der Jäger beobachtet, hat aber keine Aktion.' });
+  // Tag: alle wachen auf
+  steps.push({ t:'☀️ Tagphase', x:'Alle wachen auf. Diskutiert gemeinsam.' });
+  // Abstimmung
+  steps.push({ t:'🗳️ Abstimmung', x:'Stimmt ab (Voting-Screen).' });
+  // Ende der Runde
+  steps.push({ t:'🔁 Ende', x:'Runde beendet. Tippe „Weiter“ für die nächste Nacht.' });
+  // Aktuellen Schritt auswählen und anzeigen
+  const step = steps[ roundStep % steps.length ];
+  $( 'roundTitle' ).textContent = step.t;
+  $( 'roundText' ).textContent  = step.x;
+  // Text ansagen (die Stimme überspringt Rollennamen automatisch)
+  speak(step.x);
+}
+
+/* Ereignisse */
+$("goNames").addEventListener("click", ()=>{ renderNameInputs(6); show("sNames"); });
+$("addName").addEventListener("click", ()=>{ const inp = document.createElement("input"); inp.placeholder = `Name ${$("nameList").querySelectorAll("input").length + 1}`; $("nameList").appendChild(inp); });
+$("namesDone").addEventListener("click", ()=>{ players = getNames(); if (players.length < 3){ toast("Mindestens 3 Namen eingeben 🙂"); return; } alivePlayers = players.slice(); show("sMode"); });
+$("modeRandom").addEventListener("click", ()=>{ beginDeal(buildRandomDeck()); });
+$("modeCustom").addEventListener("click", ()=>{ initCustomCounts(); renderCustom(); show("sCustom"); });
+$("customBack").addEventListener("click", ()=>show("sMode"));
+$("customStart").addEventListener("click", ()=>{ const d = buildCustomDeck(); if (!d){ toast("Zusammenstellung stimmt nicht."); return; } beginDeal(d); });
+$("abortDeal").addEventListener("click", ()=>{ if (confirm("Zurück zum Start?")) show("sStart"); });
+$("revealTest").addEventListener("click", showReveal);
+$("roleInfoBtn").addEventListener("click", ()=>{ const r = ROLE[currentRoleKey]; if (!r) return; $("roleInfoBox").textContent = r.info; $("roleInfoBox").classList.add("show"); speak(r.info); });
+$("sfxBtn").addEventListener("click", ()=>sfx(currentRoleKey));
+$("nextPlayerBtn").addEventListener("click", nextPlayer);
+// Beim Weiter-Button: Schritt erhöhen und ggf. Voting starten
+$("roundNext").addEventListener("click", () => {
+    unlockAudio();
+    // nächsten Schritt durchzählen
+    roundStep++;
+    // Dynamisch berechnen, ob der nächste Schritt eine Abstimmung ist
+    const hasSeer    = deck.includes('seer');
+    const hasWitch   = deck.includes('witch');
+    const hasCupid   = deck.includes('cupid');
+    const hasLittle  = deck.includes('little');
+    const hasHunter  = deck.includes('hunter');
+    const steps = [];
+    steps.push({ t:'🌙 Nachtphase' });
+    if (hasSeer)   steps.push({ t:'🌙 Nachtphase' });
+    steps.push({ t:'🌙 Nachtphase' }); // Werwölfe
+    if (hasWitch)  steps.push({ t:'🌙 Nachtphase' });
+    if (hasCupid)  steps.push({ t:'🌙 Nachtphase' });
+    if (hasLittle) steps.push({ t:'🌙 Nachtphase' });
+    if (hasHunter) steps.push({ t:'🌙 Nachtphase' });
+    steps.push({ t:'☀️ Tagphase' });
+    steps.push({ t:'🗳️ Abstimmung' });
+    steps.push({ t:'🔁 Ende' });
+    const step = steps[ roundStep % steps.length ];
+    // Wenn der aktuelle Schritt die Abstimmung ist, Voting starten
+    if (step && step.t && step.t.includes('🗳️')) {
+        // Kurze Ansage vor dem Voting
+        speak('Zeit zur Abstimmung');
+        startVoting();
+        return;
+    }
+    // Andernfalls nächsten Text anzeigen
+    renderRoundStep();
+});
+$("roundEnd").addEventListener("click", ()=>{ if (confirm("Spiel beenden?")) show("sStart"); });
+
+/* Die komplexe Nacht-/Tag-Logik bleibt definiert, wird aber aktuell nicht gestartet */
+function startNight(){ pendingVictim = null; savedVictim = null; poisonVictim = null; deathLastNight = []; chooseVictim(); }
+function chooseVictim(){ const list = $("victimList"); list.innerHTML = ""; alivePlayers.forEach(name => { const btn = document.createElement('button'); btn.textContent = name; btn.className = 'primary'; btn.style.marginBottom = '8px'; btn.onclick = () => { pendingVictim = name; witchAction(); }; list.appendChild(btn); }); show('sChooseVictim'); }
+function witchAction(){ if (!deck.includes('witch')){ applyNightResults(); return; } $("currentVictimName").textContent = pendingVictim || '–'; show('sWitchAction'); }
+function choosePoison(){ const list = $("poisonList"); list.innerHTML = ""; alivePlayers.forEach(name => { if (name === pendingVictim) return; const btn = document.createElement('button'); btn.textContent = name; btn.className = 'primary'; btn.style.marginBottom = '8px'; btn.onclick = () => { poisonVictim = name; applyNightResults(); }; list.appendChild(btn); }); show('sWitchPoison'); }
+function applyNightResults(){ deathLastNight = []; if (pendingVictim && pendingVictim !== savedVictim) deathLastNight.push(pendingVictim); if (poisonVictim) deathLastNight.push(poisonVictim); deathLastNight = Array.from(new Set(deathLastNight)); if (deathLastNight.length > 0){ alivePlayers = alivePlayers.filter(n => !deathLastNight.includes(n)); } const dl = $("deadList"); if (deathLastNight.length > 0){ dl.textContent = 'Gestorben: ' + deathLastNight.join(', '); } else { dl.textContent = 'Niemand ist gestorben.'; } show('sDayResult'); }
+function startVoting(){ const list = $("voteList"); list.innerHTML = ""; alivePlayers.forEach(name => { const btn = document.createElement('button'); btn.textContent = name; btn.className = 'primary'; btn.style.marginBottom = '8px'; btn.onclick = () => { executeVote(name); }; list.appendChild(btn); }); show('sVote'); }
+function executeVote(name){ if (!name) return; alivePlayers = alivePlayers.filter(n => n !== name); toast(name + ' wurde gelyncht'); if (alivePlayers.length < 3){ alert('Spiel beendet.'); show('sStart'); } else { startRound(); } }
+$("cancelChooseVictim").addEventListener("click", ()=>{ show('sRound'); });
+$("witchHeal").addEventListener("click", ()=>{ savedVictim = pendingVictim; applyNightResults(); });
+$("witchPoison").addEventListener("click", choosePoison);
+$("witchSkip").addEventListener("click", ()=>{ applyNightResults(); });
+$("cancelPoison").addEventListener("click", ()=>{ poisonVictim = null; witchAction(); });
+$("startVoting").addEventListener("click", startVoting);
+// Abstimmungs-Beenden-Button startet nun die nächste Runde ohne komplexe Nachtlogik
+$("endVote").addEventListener("click", ()=>{ startRound(); });
+
+/* Swipe-Up: Handoff -> Reveal */
+let startY=null; const TH=55;
+document.addEventListener("touchstart", (e)=>{ if (!e.touches || e.touches.length!==1) return; startY = e.touches[0].clientY; },{passive:true});
+document.addEventListener("touchend", (e)=>{ if (startY==null) return; if (!screens.sHandoff.classList.contains("show")) { startY=null; return; } const t = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null; if (!t) { startY=null; return; } const dy = startY - t.clientY; startY=null; if (dy > TH) showReveal(); },{passive:true});
+</script>
+</body>
