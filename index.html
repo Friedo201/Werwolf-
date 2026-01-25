@@ -423,7 +423,37 @@ function playNoiseBurst({dur=0.18,vol=0.06}){ if (!$("tSound").checked) return; 
 function sfx(roleKey){ unlockAudio(); switch(roleKey){ case "werewolf": playToneSweep({from:220,to:660,dur:0.75,vol:0.18,type:"sawtooth"}); setTimeout(()=>playNoiseBurst({dur:0.18,vol:0.06}),120); break; case "witch": playToneSweep({from:520,to:740,dur:0.20,vol:0.12,type:"square"}); setTimeout(()=>playToneSweep({from:620,to:820,dur:0.18,vol:0.10,type:"square"}),180); setTimeout(()=>playToneSweep({from:420,to:680,dur:0.22,vol:0.10,type:"square"}),360); break; case "seer": playToneSweep({from:330,to:990,dur:0.55,vol:0.12,type:"sine"}); break; case "hunter": playToneSweep({from:880,to:220,dur:0.22,vol:0.16,type:"triangle"}); break; case "cupid": playToneSweep({from:660,to:880,dur:0.10,vol:0.10,type:"sine"}); setTimeout(()=>playToneSweep({from:660,to:990,dur:0.12,vol:0.10,type:"sine"}),140); break; case "little": playToneSweep({from:720,to:540,dur:0.18,vol:0.07,type:"sine"}); break; default: playToneSweep({from:440,to:440,dur:0.10,vol:0.09,type:"sine"}); } }
 let bestVoice = null;
 function pickBestVoice(){ const voices = speechSynthesis.getVoices() || []; const preferred = ["Anna", "Helena", "Markus", "Yannick", "de-DE", "Deutsch"]; for(const p of preferred){ const v = voices.find(x => (x.name || '').includes(p)); if(v) return v; } return voices.find(v => v.lang && v.lang.toLowerCase().startsWith('de')) || voices[0] || null; }
-function speak(text){ const voiceToggle = document.getElementById('tVoice'); if(voiceToggle && !voiceToggle.checked) return; if(!('speechSynthesis' in window)) return; try{ window.speechSynthesis.cancel(); if(!bestVoice){ bestVoice = pickBestVoice(); } const u = new SpeechSynthesisUtterance(text); if(bestVoice){ u.voice = bestVoice; u.lang  = bestVoice.lang || 'de-DE'; } else { u.lang = 'de-DE'; } u.rate   = 0.95; u.pitch  = 1.0; u.volume = 1.0; window.speechSynthesis.speak(u); }catch(e){} }
+// Sprechfunktion: nicht die Rollennamen vorlesen und leiser sprechen
+function speak(text){
+  // Wenn Stimme deaktiviert ist, nichts tun
+  const voiceToggle = document.getElementById('tVoice');
+  if (voiceToggle && !voiceToggle.checked) return;
+  // Nur sprechen, wenn die API verfügbar ist
+  if (!('speechSynthesis' in window)) return;
+  // Rollennamen sollen nicht ausgesprochen werden, um die Identität geheim zu halten
+  try {
+    // Pruefe, ob der Text exakt dem Namen einer Rolle entspricht
+    if (typeof ROLE !== 'undefined' && Object.values(ROLE).some(r => r && r.name === text)) {
+      return;
+    }
+    window.speechSynthesis.cancel();
+    if (!bestVoice) {
+      bestVoice = pickBestVoice();
+    }
+    const u = new SpeechSynthesisUtterance(text);
+    if (bestVoice){
+      u.voice = bestVoice;
+      u.lang  = bestVoice.lang || 'de-DE';
+    } else {
+      u.lang = 'de-DE';
+    }
+    u.rate   = 0.95;
+    u.pitch  = 1.0;
+    // Lautstärke reduziert, damit die Stimme dezenter ist
+    u.volume = 0.4;
+    window.speechSynthesis.speak(u);
+  } catch(e) {}
+}
 if('speechSynthesis' in window){ speechSynthesis.onvoiceschanged = () => { bestVoice = pickBestVoice(); }; }
 document.addEventListener('click', () => unlockAudio(), {passive:true});
 
@@ -483,7 +513,42 @@ function startRound(){
   show('sRound');
   renderRoundStep();
 }
-function renderRoundStep(){ const hasSeer = deck.includes("seer"); const hasWitch = deck.includes("witch"); const steps = []; steps.push({t:"🌙 Nachtphase", x:"Alle schließen die Augen."}); if (hasSeer) steps.push({t:"🌙 Nachtphase", x:"Seherin wacht auf und wählt einen Spieler (heimlich)."}); steps.push({t:"🌙 Nachtphase", x:"Werwölfe wachen auf und wählen ein Opfer."}); if (hasWitch) steps.push({t:"🌙 Nachtphase", x:"Hexe: Möchtest du heilen oder vergiften?"}); steps.push({t:"☀️ Tagphase", x:"Alle wachen auf. Diskutiert gemeinsam."}); steps.push({t:"🗳️ Abstimmung", x:"Stimmt ab (Voting-Screen können wir als nächstes ergänzen)."}); steps.push({t:"🔁 Ende", x:"Runde beendet. Tippe „Weiter“ für die nächste Nacht."}); const step = steps[roundStep % steps.length]; $("roundTitle").textContent = step.t; $("roundText").textContent = step.x; speak(step.x); }
+function renderRoundStep(){
+  // Ermitteln, welche Sonderrollen im Deck vorhanden sind
+  const hasSeer    = deck.includes('seer');
+  const hasWitch   = deck.includes('witch');
+  const hasCupid   = deck.includes('cupid');
+  const hasLittle  = deck.includes('little');
+  const hasHunter  = deck.includes('hunter');
+  // Liste der Schritte zusammenstellen
+  const steps = [];
+  // Nacht beginnt: alle schließen die Augen
+  steps.push({ t:'🌙 Nachtphase', x:'Alle schließen die Augen.' });
+  // Seherin sieht eine Rolle
+  if (hasSeer) steps.push({ t:'🌙 Nachtphase', x:'Seherin wacht auf und wählt einen Spieler (heimlich).' });
+  // Werwölfe wählen ein Opfer
+  steps.push({ t:'🌙 Nachtphase', x:'Werwölfe wachen auf und wählen ein Opfer.' });
+  // Hexe kann heilen oder vergiften
+  if (hasWitch) steps.push({ t:'🌙 Nachtphase', x:'Hexe: Möchtest du heilen oder vergiften?' });
+  // Amor (Cupid) wählt zwei Verliebte
+  if (hasCupid) steps.push({ t:'🌙 Nachtphase', x:'Amor bestimmt zwei Verliebte.' });
+  // Kleines Mädchen darf spicken
+  if (hasLittle) steps.push({ t:'🌙 Nachtphase', x:'Das kleine Mädchen darf vorsichtig spicken.' });
+  // Jäger hat keine nächtliche Aktion, aber kann informiert werden
+  if (hasHunter) steps.push({ t:'🌙 Nachtphase', x:'Der Jäger beobachtet, hat aber keine Aktion.' });
+  // Tag: alle wachen auf
+  steps.push({ t:'☀️ Tagphase', x:'Alle wachen auf. Diskutiert gemeinsam.' });
+  // Abstimmung
+  steps.push({ t:'🗳️ Abstimmung', x:'Stimmt ab (Voting-Screen).' });
+  // Ende der Runde
+  steps.push({ t:'🔁 Ende', x:'Runde beendet. Tippe „Weiter“ für die nächste Nacht.' });
+  // Aktuellen Schritt auswählen und anzeigen
+  const step = steps[ roundStep % steps.length ];
+  $( 'roundTitle' ).textContent = step.t;
+  $( 'roundText' ).textContent  = step.x;
+  // Text ansagen (die Stimme überspringt Rollennamen automatisch)
+  speak(step.x);
+}
 
 /* Ereignisse */
 $("goNames").addEventListener("click", ()=>{ renderNameInputs(6); show("sNames"); });
@@ -499,26 +564,36 @@ $("roleInfoBtn").addEventListener("click", ()=>{ const r = ROLE[currentRoleKey];
 $("sfxBtn").addEventListener("click", ()=>sfx(currentRoleKey));
 $("nextPlayerBtn").addEventListener("click", nextPlayer);
 // Beim Weiter-Button: Schritt erhöhen und ggf. Voting starten
-$("roundNext").addEventListener("click", ()=>{
+$("roundNext").addEventListener("click", () => {
     unlockAudio();
+    // nächsten Schritt durchzählen
     roundStep++;
-    // Prüfe, ob der nächste Schritt die Abstimmung ist
-    const hasSeer = deck.includes("seer");
-    const hasWitch = deck.includes("witch");
+    // Dynamisch berechnen, ob der nächste Schritt eine Abstimmung ist
+    const hasSeer    = deck.includes('seer');
+    const hasWitch   = deck.includes('witch');
+    const hasCupid   = deck.includes('cupid');
+    const hasLittle  = deck.includes('little');
+    const hasHunter  = deck.includes('hunter');
     const steps = [];
-    steps.push({t:"🌙 Nachtphase"});
-    if (hasSeer) steps.push({t:"🌙 Nachtphase"});
-    steps.push({t:"🌙 Nachtphase"});
-    if (hasWitch) steps.push({t:"🌙 Nachtphase"});
-    steps.push({t:"☀️ Tagphase"});
-    steps.push({t:"🗳️ Abstimmung"});
-    steps.push({t:"🔁 Ende"});
-    const step = steps[roundStep % steps.length];
-    if (step && step.t && step.t.includes("🗳️")){
+    steps.push({ t:'🌙 Nachtphase' });
+    if (hasSeer)   steps.push({ t:'🌙 Nachtphase' });
+    steps.push({ t:'🌙 Nachtphase' }); // Werwölfe
+    if (hasWitch)  steps.push({ t:'🌙 Nachtphase' });
+    if (hasCupid)  steps.push({ t:'🌙 Nachtphase' });
+    if (hasLittle) steps.push({ t:'🌙 Nachtphase' });
+    if (hasHunter) steps.push({ t:'🌙 Nachtphase' });
+    steps.push({ t:'☀️ Tagphase' });
+    steps.push({ t:'🗳️ Abstimmung' });
+    steps.push({ t:'🔁 Ende' });
+    const step = steps[ roundStep % steps.length ];
+    // Wenn der aktuelle Schritt die Abstimmung ist, Voting starten
+    if (step && step.t && step.t.includes('🗳️')) {
+        // Kurze Ansage vor dem Voting
         speak('Zeit zur Abstimmung');
         startVoting();
         return;
     }
+    // Andernfalls nächsten Text anzeigen
     renderRoundStep();
 });
 $("roundEnd").addEventListener("click", ()=>{ if (confirm("Spiel beenden?")) show("sStart"); });
