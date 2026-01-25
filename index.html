@@ -1,8 +1,6 @@
-<!doctype html>
-<html lang="de">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
   <!-- iOS "Standalone"/Web-App Einstellungen -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -120,13 +118,7 @@
     }
     .infoBox.show{display:block}
 
-    /*
-      Animations für das Rollen‑Reveal: die Karte fährt beim
-      Öffnen von unten ins Bild und bleibt dann stehen.  Die Klasse
-      „slide-in“ wird durch showReveal() gesetzt, um den
-      Übergang auszulösen.  Ohne diese Klasse befindet sich die Karte
-      außerhalb des sichtbaren Bereichs.
-    */
+    /* Rollenscreen Slide-In */
     #sReveal .card{
       transform: translateY(80%);
       transition: transform 0.35s ease;
@@ -152,12 +144,6 @@
     }
     .footer button.show{display:block}
 
-    /*
-      Die zwei Sound‑Toggles auf dem Startscreen sollen sich nie überlappen.
-      Deshalb nutzen wir ein zweispaltiges Grid und lassen die Labels die
-      verfügbare Breite einnehmen. Bei Bedarf umbrochen die Elemente auf
-      kleineren Bildschirmen einfach in die nächste Zeile.
-    */
     .miniToggles{
       display:grid;
       grid-template-columns:repeat(2, 1fr);
@@ -177,12 +163,6 @@
       font-weight:800;
       font-size:14px;
     }
-    /* Checkbox in den Umschaltern leicht vergrößern und mit Abstand versehen */
-    /* Individuelle Checkbox-Gestaltung für die Umschalter "Sounds" und "Stimme".  Die
-       nativen Checkboxen von iOS/Browsern werden ausgeblendet und durch eine
-       eigene Darstellung ersetzt.  Dadurch lässt sich der Haken zuverlässig
-       zentrieren und es kommt nicht zu Verschiebungen wie auf einigen
-       iPhones/Vorschaufenstern. */
     .toggle input{
       -webkit-appearance:none;
       appearance:none;
@@ -194,9 +174,6 @@
       position:relative;
       margin-right:4px;
     }
-    /* In der checked‑Variante wird das Häkchen als Pseudo‑Element eingefügt.  Es
-       sitzt mit top/left 50% und translate(-50%, -50%) exakt in der Mitte der
-       Box. */
     .toggle input:checked::before{
       content:'✔';
       position:absolute;
@@ -204,41 +181,15 @@
       left:50%;
       transform:translate(-50%, -50%);
       font-size:16px;
-      /* Set checkmark color to pure white (100% intensity). */
       color:#ffffff;
     }
-
-    /* Icons (Emojis) innerhalb der Umschalter kleiner darstellen */
-    .toggleIcon{
-      font-size:18px;
+    .miniToggles .icon{
+      font-size:20px;
       line-height:1;
     }
-
-    /* Texte innerhalb der Umschalter nicht umbrechen */
-    .toggleText{
-      white-space:nowrap;
-    }
-
-    /* Bei sehr schmalen Bildschirmen die beiden Toggles untereinander anzeigen,
-       damit die Beschriftungen nicht abgeschnitten werden. */
-    /* Bei schmalen Bildschirmen die beiden Toggles untereinander anzeigen,
-       damit nichts abgeschnitten oder verschoben wird.  Wir verwenden
-       600px als Schwelle, da iPhones und viele andere Handys breiter
-       als 400px sind. */
+    .toggleText{white-space:nowrap;}
     @media (max-width: 600px){
-      .miniToggles{
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* Spezielle Anpassungen für die Sound/Voice‑Toggles:
-       Die allgemeinen .icon‑Klasse wird für Rollensymbole mit großer
-       Schrift verwendet – in den Toggles sollen die Emojis kleiner und
-       zentriert dargestellt werden.  Durch diese Regel bekommen nur die
-       Icons innerhalb der miniToggles eine kleinere Schriftgröße.  */
-    .miniToggles .icon{
-      font-size: 20px;
-      line-height: 1;
+      .miniToggles{ grid-template-columns: 1fr; }
     }
     .toast{
       position:fixed;
@@ -253,8 +204,6 @@
       transition:opacity .2s ease;
     }
     .toast.show{opacity:1}
-
-    /* Mini Install-Hinweis nur im Browser (nicht im Standalone) */
     .installTip{
       margin-top:12px;
       padding:12px;
@@ -272,45 +221,29 @@
 <body>
 <div class="toast" id="toast">Hinweis</div>
 
+<!-- Startscreen -->
 <section id="sStart" class="screen show">
   <div class="card">
     <div class="pill">🐺 Werwolf • Ein-Handy</div>
     <h1>Werwolf</h1>
     <div class="muted">Optimiert für Home‑Bildschirm „Standalone“ (wie App).</div>
-
     <div class="row" style="margin-top:16px">
       <button class="primary" id="goNames">Spieler-Namen eingeben</button>
     </div>
-
     <div class="miniToggles">
-      <!-- Umschalter für Sounds und Stimme mit eigener Emoji und Text.
-           Jede Schaltfläche besteht aus einem Checkbox‑Feld, einem Emoji
-           und einem kurzen Text.  Dadurch bleiben die Elemente in einer
-           Reihe und sind auf allen Geräten korrekt ausgerichtet. -->
-      <label class="toggle">
-        <input id="tSound" type="checkbox" checked>
-        <span class="toggleIcon">🔊</span>
-        <span class="toggleText">Sounds</span>
-      </label>
-      <label class="toggle">
-        <input id="tVoice" type="checkbox" checked>
-        <span class="toggleIcon">🎙️</span>
-        <span class="toggleText">Stimme</span>
-      </label>
+      <label class="toggle"><input id="tSound" type="checkbox" checked><span class="toggleIcon">🔊</span><span class="toggleText">Sounds</span></label>
+      <label class="toggle"><input id="tVoice" type="checkbox" checked><span class="toggleIcon">🎙️</span><span class="toggleText">Stimme</span></label>
     </div>
-
     <div class="installTip">
       <b>Als App hinzufügen (1× nötig):</b><br>
       Safari öffnen → Teilen → <b>„Zum Home-Bildschirm“</b> → Name: <b>Werwolf</b> → Hinzufügen.<br>
       Danach nur noch das Icon antippen ✅
     </div>
-
-    <div class="muted" style="margin-top:10px;font-size:13px">
-      Tipp: Beim ersten Start einmal tippen, damit iOS Audio freigibt.
-    </div>
+    <div class="muted" style="margin-top:10px;font-size:13px">Tipp: Beim ersten Start einmal tippen, damit iOS Audio freigibt.</div>
   </div>
 </section>
 
+<!-- Namen eingeben -->
 <section id="sNames" class="screen">
   <div class="card">
     <div class="pill">👥 Spieler</div>
@@ -324,6 +257,7 @@
   </div>
 </section>
 
+<!-- Setup Modus wählen -->
 <section id="sMode" class="screen">
   <div class="card">
     <div class="pill">🧩 Setup</div>
@@ -338,6 +272,7 @@
   </div>
 </section>
 
+<!-- Custom Deck Zusammenstellung -->
 <section id="sCustom" class="screen">
   <div class="card">
     <div class="pill">🛠️ Karten wählen</div>
@@ -352,6 +287,7 @@
   </div>
 </section>
 
+<!-- Übergabe Screen -->
 <section id="sHandoff" class="screen">
   <div class="card">
     <div class="pill">📱 Übergabe</div>
@@ -365,6 +301,7 @@
   </div>
 </section>
 
+<!-- Rollen anzeigen -->
 <section id="sReveal" class="screen">
   <div class="card">
     <div class="pill" id="revealPill">👤 Spieler</div>
@@ -376,10 +313,10 @@
       <button id="sfxBtn">SFX nochmal</button>
     </div>
     <div class="infoBox" id="roleInfoBox"></div>
-    <!-- Hinweis zum Next‑Button entfernt: der Button erscheint nach 3 Sekunden automatisch ohne Text. -->
   </div>
 </section>
 
+<!-- Runden-Ablauf (vereinfacht) -->
 <section id="sRound" class="screen">
   <div class="card">
     <div class="pill">🌙☀️ Runde</div>
@@ -395,15 +332,7 @@
   </div>
 </section>
 
-<!--
-  Neue Interaktions-Screens für Nachtphase und Abstimmung.
-  1. Werwölfe wählen ein Opfer.
-  2. Hexe entscheidet (heilen, vergiften, nichts).
-  3. Hexe vergiftet einen Spieler.
-  4. Anzeige der Opfer der Nacht.
-  5. Abstimmung am Tag: ein Spieler wird gewählt und eliminiert.
--->
-
+<!-- Screens für komplexe Nacht/Tag (derzeit ungenutzt) -->
 <section id="sChooseVictim" class="screen">
   <div class="card">
     <div class="pill">🐺 Opfer wählen</div>
@@ -414,7 +343,6 @@
     </div>
   </div>
 </section>
-
 <section id="sWitchAction" class="screen">
   <div class="card">
     <div class="pill">🧪 Hexe</div>
@@ -427,7 +355,6 @@
     </div>
   </div>
 </section>
-
 <section id="sWitchPoison" class="screen">
   <div class="card">
     <div class="pill">🧪 Vergiften</div>
@@ -438,7 +365,6 @@
     </div>
   </div>
 </section>
-
 <section id="sDayResult" class="screen">
   <div class="card">
     <div class="pill">☀️ Tag</div>
@@ -449,7 +375,6 @@
     </div>
   </div>
 </section>
-
 <section id="sVote" class="screen">
   <div class="card">
     <div class="pill">🗳️ Abstimmung</div>
@@ -461,6 +386,7 @@
   </div>
 </section>
 
+<!-- Footer für "Nächster Spieler" -->
 <div class="footer">
   <button id="nextPlayerBtn" class="primary">Nächster Spieler</button>
 </div>
@@ -468,8 +394,7 @@
 <script>
 /* Standalone-Erkennung */
 (function(){
-  const isStandalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
-                       (window.navigator && window.navigator.standalone === true);
+  const isStandalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || (window.navigator && window.navigator.standalone === true);
   if (isStandalone) document.body.classList.add("standalone");
 })();
 
@@ -486,628 +411,138 @@ const CUSTOM_ROLES = ["werewolf","villager","witch","seer","hunter","cupid","lit
 
 const $ = (id)=>document.getElementById(id);
 const screens = ["sStart","sNames","sMode","sCustom","sHandoff","sReveal","sRound"].reduce((a,k)=>(a[k]=$(k),a),{});
-function show(screenId){
-  Object.values(screens).forEach(s=>s.classList.remove("show"));
-  screens[screenId].classList.add("show");
-}
-function toast(msg, ms=1600){
-  const t = $("toast");
-  t.textContent = msg;
-  t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"), ms);
-}
+function show(screenId){ Object.values(screens).forEach(s=>s.classList.remove("show")); screens[screenId].classList.add("show"); }
+function toast(msg, ms=1600){ const t = $("toast"); t.textContent = msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), ms); }
 
 /* Audio + Voice */
 let audioCtx=null, audioUnlocked=false;
-function ensureAudio(){
-  if (audioCtx) return true;
-  try{
-    const Ctx = window.AudioContext || window.webkitAudioContext;
-    audioCtx = new Ctx();
-    return true;
-  }catch(e){ return false; }
-}
-function unlockAudio(){
-  if (audioUnlocked) return;
-  if (!ensureAudio()) return;
-  const t=audioCtx.currentTime;
-  const o=audioCtx.createOscillator();
-  const g=audioCtx.createGain();
-  g.gain.setValueAtTime(0.0001,t);
-  g.gain.exponentialRampToValueAtTime(0.0001,t+0.03);
-  o.frequency.setValueAtTime(440,t);
-  o.connect(g); g.connect(audioCtx.destination);
-  o.start(t); o.stop(t+0.03);
-  audioUnlocked=true;
-}
-function playToneSweep({from=440,to=220,dur=0.6,vol=0.18,type="sine"}){
-  if (!$("tSound").checked) return;
-  if (!ensureAudio()) return;
-  const t0=audioCtx.currentTime;
-  const o=audioCtx.createOscillator();
-  const g=audioCtx.createGain();
-  o.type=type;
-  o.frequency.setValueAtTime(from,t0);
-  o.frequency.exponentialRampToValueAtTime(Math.max(1,to),t0+dur);
-  g.gain.setValueAtTime(0.0001,t0);
-  g.gain.exponentialRampToValueAtTime(vol,t0+0.02);
-  g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
-  o.connect(g); g.connect(audioCtx.destination);
-  o.start(t0); o.stop(t0+dur+0.02);
-}
-function playNoiseBurst({dur=0.18,vol=0.06}){
-  if (!$("tSound").checked) return;
-  if (!ensureAudio()) return;
-  const t0=audioCtx.currentTime;
-  const size=Math.floor(audioCtx.sampleRate*dur);
-  const buf=audioCtx.createBuffer(1,size,audioCtx.sampleRate);
-  const d=buf.getChannelData(0);
-  for(let i=0;i<size;i++) d[i]=(Math.random()*2-1)*(1-i/size);
-  const src=audioCtx.createBufferSource();
-  const g=audioCtx.createGain();
-  g.gain.setValueAtTime(vol,t0);
-  g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
-  src.buffer=buf;
-  src.connect(g); g.connect(audioCtx.destination);
-  src.start(t0);
-}
-function sfx(roleKey){
-  unlockAudio();
-  switch(roleKey){
-    case "werewolf":
-      playToneSweep({from:220,to:660,dur:0.75,vol:0.18,type:"sawtooth"});
-      setTimeout(()=>playNoiseBurst({dur:0.18,vol:0.06}),120);
-      break;
-    case "witch":
-      playToneSweep({from:520,to:740,dur:0.20,vol:0.12,type:"square"});
-      setTimeout(()=>playToneSweep({from:620,to:820,dur:0.18,vol:0.10,type:"square"}),180);
-      setTimeout(()=>playToneSweep({from:420,to:680,dur:0.22,vol:0.10,type:"square"}),360);
-      break;
-    case "seer":
-      playToneSweep({from:330,to:990,dur:0.55,vol:0.12,type:"sine"});
-      break;
-    case "hunter":
-      playToneSweep({from:880,to:220,dur:0.22,vol:0.16,type:"triangle"});
-      break;
-    case "cupid":
-      playToneSweep({from:660,to:880,dur:0.10,vol:0.10,type:"sine"});
-      setTimeout(()=>playToneSweep({from:660,to:990,dur:0.12,vol:0.10,type:"sine"}),140);
-      break;
-    case "little":
-      playToneSweep({from:720,to:540,dur:0.18,vol:0.07,type:"sine"});
-      break;
-    default:
-      playToneSweep({from:440,to:440,dur:0.10,vol:0.09,type:"sine"});
-  }
-}
-/* -------------------------------------
-   Sprachwiedergabe
-
-   Für die Textausgabe verwenden wir speechSynthesis.  Auf iOS/Chrome
-   stehen verschiedene Stimmen zur Verfügung.  Wir wählen automatisch
-   eine natürliche deutsche Stimme (z.B. "Anna", "Helena", "Markus", etc.)
-   und verwenden leicht angepasste Rate/Pitch‑Werte.  Wenn keine passende
-   Stimme gefunden wird, verwenden wir die Standardsprache "de-DE".
-
-   Die Stimmenliste wird asynchron geladen, daher registrieren wir
-   "onvoiceschanged", um die erste verfügbare Stimme zu bestimmen.  Die
-   Einstellungen (Rate, Pitch, Volume) wurden für ein iPhone 12 Pro mit
-   aktuellem iOS optimiert, lassen sich aber bei Bedarf anpassen.
-*/
+function ensureAudio(){ if (audioCtx) return true; try{ const Ctx = window.AudioContext || window.webkitAudioContext; audioCtx = new Ctx(); return true; }catch(e){ return false; } }
+function unlockAudio(){ if (audioUnlocked) return; if (!ensureAudio()) return; const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.0001,t+0.03); o.frequency.setValueAtTime(440,t); o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.03); audioUnlocked=true; }
+function playToneSweep({from=440,to=220,dur=0.6,vol=0.18,type="sine"}){ if (!$("tSound").checked) return; if (!ensureAudio()) return; const t0=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type=type; o.frequency.setValueAtTime(from,t0); o.frequency.exponentialRampToValueAtTime(Math.max(1,to),t0+dur); g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(vol,t0+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t0+dur); o.connect(g); g.connect(audioCtx.destination); o.start(t0); o.stop(t0+dur+0.02); }
+function playNoiseBurst({dur=0.18,vol=0.06}){ if (!$("tSound").checked) return; if (!ensureAudio()) return; const t0=audioCtx.currentTime; const size=Math.floor(audioCtx.sampleRate*dur); const buf=audioCtx.createBuffer(1,size,audioCtx.sampleRate); const d=buf.getChannelData(0); for(let i=0;i<size;i++) d[i]=(Math.random()*2-1)*(1-i/size); const src=audioCtx.createBufferSource(); const g=audioCtx.createGain(); g.gain.setValueAtTime(vol,t0); g.gain.exponentialRampToValueAtTime(0.0001,t0+dur); src.buffer=buf; src.connect(g); g.connect(audioCtx.destination); src.start(t0); }
+function sfx(roleKey){ unlockAudio(); switch(roleKey){ case "werewolf": playToneSweep({from:220,to:660,dur:0.75,vol:0.18,type:"sawtooth"}); setTimeout(()=>playNoiseBurst({dur:0.18,vol:0.06}),120); break; case "witch": playToneSweep({from:520,to:740,dur:0.20,vol:0.12,type:"square"}); setTimeout(()=>playToneSweep({from:620,to:820,dur:0.18,vol:0.10,type:"square"}),180); setTimeout(()=>playToneSweep({from:420,to:680,dur:0.22,vol:0.10,type:"square"}),360); break; case "seer": playToneSweep({from:330,to:990,dur:0.55,vol:0.12,type:"sine"}); break; case "hunter": playToneSweep({from:880,to:220,dur:0.22,vol:0.16,type:"triangle"}); break; case "cupid": playToneSweep({from:660,to:880,dur:0.10,vol:0.10,type:"sine"}); setTimeout(()=>playToneSweep({from:660,to:990,dur:0.12,vol:0.10,type:"sine"}),140); break; case "little": playToneSweep({from:720,to:540,dur:0.18,vol:0.07,type:"sine"}); break; default: playToneSweep({from:440,to:440,dur:0.10,vol:0.09,type:"sine"}); } }
 let bestVoice = null;
-function pickBestVoice(){
-  const voices = speechSynthesis.getVoices() || [];
-  const preferred = [
-    "Anna", "Helena", "Markus", "Yannick",
-    "de-DE", "Deutsch"
-  ];
-  for(const p of preferred){
-    const v = voices.find(x => (x.name || '').includes(p));
-    if(v) return v;
-  }
-  // Fallback: beliebige deutsche Stimme oder erste verfügbare Stimme
-  return voices.find(v => v.lang && v.lang.toLowerCase().startsWith('de')) || voices[0] || null;
-}
-function speak(text){
-  // Wenn die Sprachausgabe ausgeschaltet ist, sofort abbrechen
-  const voiceToggle = document.getElementById('tVoice');
-  if(voiceToggle && !voiceToggle.checked) return;
-  if(!('speechSynthesis' in window)) return;
-  try{
-    window.speechSynthesis.cancel();
-    if(!bestVoice){
-      bestVoice = pickBestVoice();
-    }
-    const u = new SpeechSynthesisUtterance(text);
-    if(bestVoice){
-      u.voice = bestVoice;
-      u.lang  = bestVoice.lang || 'de-DE';
-    } else {
-      u.lang = 'de-DE';
-    }
-    // Natürliches Tempo/Pitch.  Bei Bedarf anpassen.
-    u.rate   = 0.95;
-    u.pitch  = 1.0;
-    u.volume = 1.0;
-    window.speechSynthesis.speak(u);
-  }catch(e){}
-}
-// iOS: Stimmen sind manchmal erst nach dem Laden verfügbar
-if('speechSynthesis' in window){
-  speechSynthesis.onvoiceschanged = () => {
-    bestVoice = pickBestVoice();
-  };
-}
+function pickBestVoice(){ const voices = speechSynthesis.getVoices() || []; const preferred = ["Anna", "Helena", "Markus", "Yannick", "de-DE", "Deutsch"]; for(const p of preferred){ const v = voices.find(x => (x.name || '').includes(p)); if(v) return v; } return voices.find(v => v.lang && v.lang.toLowerCase().startsWith('de')) || voices[0] || null; }
+function speak(text){ const voiceToggle = document.getElementById('tVoice'); if(voiceToggle && !voiceToggle.checked) return; if(!('speechSynthesis' in window)) return; try{ window.speechSynthesis.cancel(); if(!bestVoice){ bestVoice = pickBestVoice(); } const u = new SpeechSynthesisUtterance(text); if(bestVoice){ u.voice = bestVoice; u.lang  = bestVoice.lang || 'de-DE'; } else { u.lang = 'de-DE'; } u.rate   = 0.95; u.pitch  = 1.0; u.volume = 1.0; window.speechSynthesis.speak(u); }catch(e){} }
+if('speechSynthesis' in window){ speechSynthesis.onvoiceschanged = () => { bestVoice = pickBestVoice(); }; }
 document.addEventListener('click', () => unlockAudio(), {passive:true});
 
-/* Names */
+/* Namen */
 let players = [];
-function renderNameInputs(initial=6){
-  const box = $("nameList");
-  box.innerHTML="";
-  for(let i=0;i<initial;i++){
-    const inp = document.createElement("input");
-    inp.placeholder = `Name ${i+1}`;
-    box.appendChild(inp);
-  }
-}
-function getNames(){
-  const inputs = [...$("nameList").querySelectorAll("input")];
-  return inputs.map(i=>i.value.trim()).filter(Boolean);
-}
+function renderNameInputs(initial=6){ const box = $("nameList"); box.innerHTML=""; for(let i=0;i<initial;i++){ const inp = document.createElement("input"); inp.placeholder = `Name ${i+1}`; box.appendChild(inp); } }
+function getNames(){ const inputs = [...$("nameList").querySelectorAll("input")]; return inputs.map(i=>i.value.trim()).filter(Boolean); }
 
-/* Minimums (integers only) */
-function minWerewolves(n){
-  if (n <= 5) return 1;
-  if (n <= 8) return 2;
-  if (n <= 11) return 3;
-  if (n <= 15) return 4;
-  return 5;
-}
+/* Mindestwerte (ganzzahlig) */
+function minWerewolves(n){ if (n <= 5) return 1; if (n <= 8) return 2; if (n <= 11) return 3; if (n <= 15) return 4; return 5; }
 function minVillagers(n){ return 1; }
 
-/* Deck builders */
+/* Deck-Builder */
 let deck = [];
 let dealIndex = 0;
 
-/*
-  Spielerlisten und Nachtstatus
-  alivePlayers: enthält alle Spieler, die noch leben.  Wird bei Beginn aus
-  players kopiert und jedes Mal nach einer Nacht/Voting aktualisiert.
-  pendingVictim: Name des Opfers, das die Werwölfe gewählt haben.
-  savedVictim: Name des Opfers, das von der Hexe gerettet wurde.
-  poisonVictim: Name des Spielers, den die Hexe vergiftet.
-  deathLastNight: Liste der in der letzten Nacht Gestorbenen (vor der Abstimmung).
-*/
+/* Spieler- und Nachtstatus */
 let alivePlayers = [];
 let pendingVictim = null;
 let savedVictim = null;
 let poisonVictim = null;
 let deathLastNight = [];
 
-function shuffle(a){
-  for(let i=a.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
-  return a;
-}
-function buildRandomDeck(){
-  const n = players.length;
-  const ww = minWerewolves(n);
-  const fixed = ["witch"];
-  for(let i=0;i<ww;i++) fixed.push("werewolf");
-
-  const optionalPool = ["seer","hunter","cupid","little"];
-  shuffle(optionalPool);
-  const maxExtras = Math.min(3, Math.max(0, n - fixed.length - 1));
-  const extras = optionalPool.slice(0, maxExtras);
-
-  const deckTmp = [...fixed, ...extras];
-  while(deckTmp.length < n) deckTmp.push("villager");
-  shuffle(deckTmp);
-  return deckTmp;
-}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function buildRandomDeck(){ const n = players.length; const ww = minWerewolves(n); const fixed = ["witch"]; for(let i=0;i<ww;i++) fixed.push("werewolf"); const optionalPool = ["seer","hunter","cupid","little"]; shuffle(optionalPool); const maxExtras = Math.min(3, Math.max(0, n - fixed.length - 1)); const extras = optionalPool.slice(0, maxExtras); const deckTmp = [...fixed, ...extras]; while(deckTmp.length < n) deckTmp.push("villager"); shuffle(deckTmp); return deckTmp; }
 
 /* Custom */
 let customCounts = {};
-function initCustomCounts(){
-  customCounts = {};
-  CUSTOM_ROLES.forEach(k=>customCounts[k]=0);
-  customCounts["witch"]=1; // fixed exactly 1
-  customCounts["werewolf"]=Math.max(customCounts["werewolf"], minWerewolves(players.length));
-  customCounts["villager"]=Math.max(customCounts["villager"], minVillagers(players.length));
-}
+function initCustomCounts(){ customCounts = {}; CUSTOM_ROLES.forEach(k=>customCounts[k]=0); customCounts["witch"]=1; customCounts["werewolf"]=Math.max(customCounts["werewolf"], minWerewolves(players.length)); customCounts["villager"]=Math.max(customCounts["villager"], minVillagers(players.length)); }
 function sumCustom(){ return Object.values(customCounts).reduce((a,b)=>a+b,0); }
-
-function longPressInfo(el, roleKey){
-  let t=null;
-  const start = ()=>{ t=setTimeout(()=>alert(`${ROLE[roleKey].name}:\n\n${ROLE[roleKey].info}`), 450); };
-  const stop  = ()=>{ if(t){clearTimeout(t); t=null;} };
-  el.addEventListener("touchstart", start, {passive:true});
-  el.addEventListener("touchend", stop, {passive:true});
-  el.addEventListener("touchmove", stop, {passive:true});
-  el.addEventListener("mousedown", start);
-  el.addEventListener("mouseup", stop);
-  el.addEventListener("mouseleave", stop);
-}
-function renderCustom(){
-  $("customHint").textContent = `Spieler: ${players.length} • Ziel: genau ${players.length} Karten`;
-  const box = $("roleTiles");
-  box.innerHTML="";
-
-  CUSTOM_ROLES.forEach(roleKey=>{
-    const t = document.createElement("div");
-    t.className="tile";
-
-    const top = document.createElement("div");
-    top.className="tileTop";
-
-    const title = document.createElement("div");
-    title.className="tileTitle";
-    title.innerHTML = `<span style="font-size:22px">${ROLE[roleKey].icon}</span> <span>${ROLE[roleKey].name}</span>`;
-
-    const cnt = document.createElement("div");
-    cnt.className="count";
-
-    const minus = document.createElement("button");
-    minus.textContent="−";
-
-    const num = document.createElement("div");
-    num.style.minWidth="28px";
-    num.style.textAlign="center";
-    num.style.fontWeight="900";
-    num.textContent = customCounts[roleKey];
-
-    const plus = document.createElement("button");
-    plus.textContent="+";
-
-    const isWitch = roleKey==="witch";
-    minus.disabled = isWitch;
-    plus.disabled = isWitch;
-
-    minus.onclick = ()=>{
-      unlockAudio();
-      const minWW = minWerewolves(players.length);
-      const minV  = minVillagers(players.length);
-      if (roleKey==="werewolf" && customCounts[roleKey] <= minWW) { toast(`Mindestens ${minWW} Werwölfe 🐺`); return; }
-      if (roleKey==="villager" && customCounts[roleKey] <= minV)  { toast(`Mindestens ${minV} Dorfbewohner 👨‍🌾`); return; }
-      if (customCounts[roleKey] > 0){ customCounts[roleKey]--; renderCustom(); validateCustom(); }
-    };
-
-    plus.onclick = ()=>{
-      unlockAudio();
-      if (sumCustom() >= players.length){ toast("Zu viele Karten – erst woanders reduzieren"); return; }
-      customCounts[roleKey]++; renderCustom(); validateCustom();
-    };
-
+function longPressInfo(el, roleKey){ let t=null; const start = ()=>{ t=setTimeout(()=>alert(`${ROLE[roleKey].name}:\n\n${ROLE[roleKey].info}`), 450); }; const stop  = ()=>{ if(t){clearTimeout(t); t=null;} }; el.addEventListener("touchstart", start, {passive:true}); el.addEventListener("touchend", stop, {passive:true}); el.addEventListener("touchmove", stop, {passive:true}); el.addEventListener("mousedown", start); el.addEventListener("mouseup", stop); el.addEventListener("mouseleave", stop); }
+function renderCustom(){ $("customHint").textContent = `Spieler: ${players.length} • Ziel: genau ${players.length} Karten`; const box = $("roleTiles"); box.innerHTML=""; CUSTOM_ROLES.forEach(roleKey=>{ const t = document.createElement("div"); t.className="tile"; const top = document.createElement("div"); top.className="tileTop"; const title = document.createElement("div"); title.className="tileTitle"; title.innerHTML = `<span style="font-size:22px">${ROLE[roleKey].icon}</span> <span>${ROLE[roleKey].name}</span>`; const cnt = document.createElement("div"); cnt.className="count"; const minus = document.createElement("button"); minus.textContent="−"; const num = document.createElement("div"); num.style.minWidth="28px"; num.style.textAlign="center"; num.style.fontWeight="900"; num.textContent = customCounts[roleKey]; const plus = document.createElement("button"); plus.textContent="+"; const isWitch = roleKey==="witch"; minus.disabled = isWitch; plus.disabled = isWitch; minus.onclick = ()=>{ unlockAudio(); const minWW = minWerewolves(players.length); const minV  = minVillagers(players.length); if (roleKey==="werewolf" && customCounts[roleKey] <= minWW) { toast(`Mindestens ${minWW} Werwölfe 🐺`); return; } if (roleKey==="villager" && customCounts[roleKey] <= minV)  { toast(`Mindestens ${minV} Dorfbewohner 👨‍🌾`); return; } if (customCounts[roleKey] > 0){ customCounts[roleKey]--; renderCustom(); validateCustom(); } };
+    plus.onclick = ()=>{ unlockAudio(); if (sumCustom() >= players.length){ toast("Zu viele Karten – erst woanders reduzieren"); return; } customCounts[roleKey]++; renderCustom(); validateCustom(); };
     cnt.appendChild(minus); cnt.appendChild(num); cnt.appendChild(plus);
     top.appendChild(title); top.appendChild(cnt);
-
-    const badge = document.createElement("div");
-    badge.className="badge";
-    badge.textContent = "Langes Drücken: Kurzinfo";
-
+    const badge = document.createElement("div"); badge.className="badge"; badge.textContent = "Langes Drücken: Kurzinfo";
     t.appendChild(top);
     t.appendChild(badge);
-
     longPressInfo(t, roleKey);
     box.appendChild(t);
-  });
-
-  validateCustom();
-}
-
-function validateCustom(){
-  const n = players.length;
-  const total = sumCustom();
-  const wwMin = minWerewolves(n);
-  const vMin  = minVillagers(n);
-
-  const hasWitch = customCounts["witch"] === 1;
-  const hasWW = customCounts["werewolf"] >= wwMin;
-  const hasV  = customCounts["villager"] >= vMin;
-  const exact = total === n;
-
-  const ok = (n>=3) && hasWitch && hasWW && hasV && exact;
-  $("customStart").disabled = !ok;
-
-  let msg = `Karten: ${total}/${n}. `;
-  if (!hasWW) msg += `Zu wenig Werwölfe (min. ${wwMin}). `;
-  if (!hasV)  msg += `Zu wenig Dorfbewohner (min. ${vMin}). `;
-  if (!exact) msg += "Summe muss exakt Spielerzahl sein. ";
-  $("customStatus").textContent = ok ? "✅ Startbereit!" : msg;
-}
-function buildCustomDeck(){
-  const n = players.length;
-  const arr=[];
-  CUSTOM_ROLES.forEach(k=>{
-    for(let i=0;i<customCounts[k];i++) arr.push(k);
-  });
-  if (arr.length !== n) return null;
-  shuffle(arr);
-  return arr;
-}
+  }); validateCustom(); }
+function validateCustom(){ const n = players.length; const total = sumCustom(); const wwMin = minWerewolves(n); const vMin  = minVillagers(n); const hasWitch = customCounts["witch"] === 1; const hasWW = customCounts["werewolf"] >= wwMin; const hasV  = customCounts["villager"] >= vMin; const exact = total === n; const ok = (n>=3) && hasWitch && hasWW && hasV && exact; $("customStart").disabled = !ok; let msg = `Karten: ${total}/${n}. `; if (!hasWW) msg += `Zu wenig Werwölfe (min. ${wwMin}). `; if (!hasV)  msg += `Zu wenig Dorfbewohner (min. ${vMin}). `; if (!exact) msg += "Summe muss exakt Spielerzahl sein. "; $("customStatus").textContent = ok ? "✅ Startbereit!" : msg; }
+function buildCustomDeck(){ const n = players.length; const arr=[]; CUSTOM_ROLES.forEach(k=>{ for(let i=0;i<customCounts[k];i++) arr.push(k); }); if (arr.length !== n) return null; shuffle(arr); return arr; }
 
 /* Deal / Reveal */
 let nextTimer=null;
 let currentRoleKey=null;
+function beginDeal(newDeck){ deck = newDeck; dealIndex = 0; show("sHandoff"); $("handoffName").textContent = players[dealIndex]; }
+function showReveal(){ unlockAudio(); const p = players[dealIndex]; currentRoleKey = deck[dealIndex]; const r = ROLE[currentRoleKey] || {name:"Unbekannt", icon:"❓", info:"Keine Info vorhanden."}; $("revealPill").textContent = `👤 Spieler: ${p}`; $("roleIcon").textContent = r.icon; $("roleName").textContent = r.name; $("roleInfoBox").classList.remove("show"); $("roleInfoBox").textContent = ""; sfx(currentRoleKey); speak(r.name); $("nextPlayerBtn").classList.remove("show"); if (nextTimer) clearTimeout(nextTimer); nextTimer = setTimeout(()=>$("nextPlayerBtn").classList.add("show"), 3000); show("sReveal"); const card = screens.sReveal.querySelector('.card'); if (card){ card.classList.remove('slide-in'); void card.offsetHeight; card.classList.add('slide-in'); } }
+function nextPlayer(){ unlockAudio(); dealIndex++; $("nextPlayerBtn").classList.remove("show"); if (dealIndex >= players.length){ toast("Alle Rollen verteilt ✅"); startRound(); return; } show("sHandoff"); $("handoffName").textContent = players[dealIndex]; }
 
-function beginDeal(newDeck){
-  deck = newDeck;
-  dealIndex = 0;
-  show("sHandoff");
-  $("handoffName").textContent = players[dealIndex];
-}
-function showReveal(){
-  unlockAudio();
-  const p = players[dealIndex];
-  currentRoleKey = deck[dealIndex];
-  const r = ROLE[currentRoleKey] || {name:"Unbekannt", icon:"❓", info:"Keine Info vorhanden."};
-
-  $("revealPill").textContent = `👤 Spieler: ${p}`;
-  $("roleIcon").textContent = r.icon;
-  $("roleName").textContent = r.name;
-  $("roleInfoBox").classList.remove("show");
-  $("roleInfoBox").textContent = "";
-
-  sfx(currentRoleKey);
-  speak(r.name);
-
-  // Nächster-Spieler-Button ausblenden und später wieder einblenden
-  $("nextPlayerBtn").classList.remove("show");
-  if (nextTimer) clearTimeout(nextTimer);
-  nextTimer = setTimeout(()=>$("nextPlayerBtn").classList.add("show"), 3000);
-
-  // Reveal-Screen anzeigen
-  show("sReveal");
-
-  // Slide-In Animation: Karte erst zurücksetzen, dann Klasse hinzufügen
-  const card = screens.sReveal.querySelector('.card');
-  if (card){
-    card.classList.remove('slide-in');
-    // Force reflow, damit das Entfernen der Klasse wirkt
-    void card.offsetHeight;
-    card.classList.add('slide-in');
-  }
-}
-function nextPlayer(){
-  unlockAudio();
-  dealIndex++;
-  $("nextPlayerBtn").classList.remove("show");
-  if (dealIndex >= players.length){
-    toast("Alle Rollen verteilt ✅");
-    startRound();
-    return;
-  }
-  show("sHandoff");
-  $("handoffName").textContent = players[dealIndex];
-}
-
-/* Round flow (basic) */
+/* Rundenfluss (einfach) */
 let roundStep = 0;
 function startRound(){
-  // Beginn einer neuen Nacht- und Tag-Sequenz.
-  // Wir überspringen die alte Schrittsteuerung und starten
-  // direkt die Nachtphase mit den neuen Interaktionen.
-   roundStep = 0;
-  show("sRound");
+  // Fix: starte einfache Runde ohne komplexe Nachtlogik
+  roundStep = 0;
+  show('sRound');
   renderRoundStep();
 }
-function renderRoundStep(){
-  const hasSeer = deck.includes("seer");
-  const hasWitch = deck.includes("witch");
+function renderRoundStep(){ const hasSeer = deck.includes("seer"); const hasWitch = deck.includes("witch"); const steps = []; steps.push({t:"🌙 Nachtphase", x:"Alle schließen die Augen."}); if (hasSeer) steps.push({t:"🌙 Nachtphase", x:"Seherin wacht auf und wählt einen Spieler (heimlich)."}); steps.push({t:"🌙 Nachtphase", x:"Werwölfe wachen auf und wählen ein Opfer."}); if (hasWitch) steps.push({t:"🌙 Nachtphase", x:"Hexe: Möchtest du heilen oder vergiften?"}); steps.push({t:"☀️ Tagphase", x:"Alle wachen auf. Diskutiert gemeinsam."}); steps.push({t:"🗳️ Abstimmung", x:"Stimmt ab (Voting-Screen können wir als nächstes ergänzen)."}); steps.push({t:"🔁 Ende", x:"Runde beendet. Tippe „Weiter“ für die nächste Nacht."}); const step = steps[roundStep % steps.length]; $("roundTitle").textContent = step.t; $("roundText").textContent = step.x; speak(step.x); }
 
-  const steps = [];
-  steps.push({t:"🌙 Nachtphase", x:"Alle schließen die Augen."});
-  if (hasSeer) steps.push({t:"🌙 Nachtphase", x:"Seherin wacht auf und wählt einen Spieler (heimlich)."});
-  steps.push({t:"🌙 Nachtphase", x:"Werwölfe wachen auf und wählen ein Opfer."});
-  if (hasWitch) steps.push({t:"🌙 Nachtphase", x:"Hexe: Möchtest du heilen oder vergiften?"});
-  steps.push({t:"☀️ Tagphase", x:"Alle wachen auf. Diskutiert gemeinsam."});
-  steps.push({t:"🗳️ Abstimmung", x:"Stimmt ab (Voting-Screen können wir als nächstes ergänzen)."});
-  steps.push({t:"🔁 Ende", x:"Runde beendet. Tippe „Weiter“ für die nächste Nacht."});
-
-  const step = steps[roundStep % steps.length];
-  $("roundTitle").textContent = step.t;
-  $("roundText").textContent = step.x;
-  speak(step.x);
-}
-
-/* Events */
+/* Ereignisse */
 $("goNames").addEventListener("click", ()=>{ renderNameInputs(6); show("sNames"); });
-$("addName").addEventListener("click", ()=>{
-  const inp = document.createElement("input");
-  inp.placeholder = `Name ${$("nameList").querySelectorAll("input").length + 1}`;
-  $("nameList").appendChild(inp);
-});
-$("namesDone").addEventListener("click", ()=>{
-  players = getNames();
-  if (players.length < 3){ toast("Mindestens 3 Namen eingeben 🙂"); return; }
-
-  // Kopiere alle Spieler in alivePlayers – diese Liste wird bei
-  // Nachtaktionen und Abstimmungen angepasst.
-  alivePlayers = players.slice();
-  show("sMode");
-});
+$("addName").addEventListener("click", ()=>{ const inp = document.createElement("input"); inp.placeholder = `Name ${$("nameList").querySelectorAll("input").length + 1}`; $("nameList").appendChild(inp); });
+$("namesDone").addEventListener("click", ()=>{ players = getNames(); if (players.length < 3){ toast("Mindestens 3 Namen eingeben 🙂"); return; } alivePlayers = players.slice(); show("sMode"); });
 $("modeRandom").addEventListener("click", ()=>{ beginDeal(buildRandomDeck()); });
 $("modeCustom").addEventListener("click", ()=>{ initCustomCounts(); renderCustom(); show("sCustom"); });
 $("customBack").addEventListener("click", ()=>show("sMode"));
-$("customStart").addEventListener("click", ()=>{
-  const d = buildCustomDeck();
-  if (!d){ toast("Zusammenstellung stimmt nicht."); return; }
-  beginDeal(d);
-});
+$("customStart").addEventListener("click", ()=>{ const d = buildCustomDeck(); if (!d){ toast("Zusammenstellung stimmt nicht."); return; } beginDeal(d); });
 $("abortDeal").addEventListener("click", ()=>{ if (confirm("Zurück zum Start?")) show("sStart"); });
 $("revealTest").addEventListener("click", showReveal);
-
-$("roleInfoBtn").addEventListener("click", ()=>{
-  const r = ROLE[currentRoleKey];
-  if (!r) return;
-  $("roleInfoBox").textContent = r.info;
-  $("roleInfoBox").classList.add("show");
-  speak(r.info);
-});
+$("roleInfoBtn").addEventListener("click", ()=>{ const r = ROLE[currentRoleKey]; if (!r) return; $("roleInfoBox").textContent = r.info; $("roleInfoBox").classList.add("show"); speak(r.info); });
 $("sfxBtn").addEventListener("click", ()=>sfx(currentRoleKey));
 $("nextPlayerBtn").addEventListener("click", nextPlayer);
-
-$("roundNext").addEventListener("click", ()=>{ unlockAudio(); roundStep++; renderRoundStep(); });
+// Beim Weiter-Button: Schritt erhöhen und ggf. Voting starten
+$("roundNext").addEventListener("click", ()=>{
+    unlockAudio();
+    roundStep++;
+    // Prüfe, ob der nächste Schritt die Abstimmung ist
+    const hasSeer = deck.includes("seer");
+    const hasWitch = deck.includes("witch");
+    const steps = [];
+    steps.push({t:"🌙 Nachtphase"});
+    if (hasSeer) steps.push({t:"🌙 Nachtphase"});
+    steps.push({t:"🌙 Nachtphase"});
+    if (hasWitch) steps.push({t:"🌙 Nachtphase"});
+    steps.push({t:"☀️ Tagphase"});
+    steps.push({t:"🗳️ Abstimmung"});
+    steps.push({t:"🔁 Ende"});
+    const step = steps[roundStep % steps.length];
+    if (step && step.t && step.t.includes("🗳️")){
+        speak('Zeit zur Abstimmung');
+        startVoting();
+        return;
+    }
+    renderRoundStep();
+});
 $("roundEnd").addEventListener("click", ()=>{ if (confirm("Spiel beenden?")) show("sStart"); });
 
-/* ====================================================================
-   Nacht‑ und Tag‑Ablauf mit Opferaushwahl, Hexen‑Aktionen und Abstimmung
-   ==================================================================== */
-
-function startNight(){
-  // Rücksetzen der Nachtvariablen
-  pendingVictim = null;
-  savedVictim = null;
-  poisonVictim = null;
-  deathLastNight = [];
-  // Werwölfe wählen ein Opfer
-  chooseVictim();
-}
-
-function chooseVictim(){
-  // Fülle die Liste der möglichen Opfer (alle lebenden Spieler)
-  const list = $("victimList");
-  list.innerHTML = "";
-  alivePlayers.forEach(name => {
-    const btn = document.createElement('button');
-    btn.textContent = name;
-    btn.className = 'primary';
-    btn.style.marginBottom = '8px';
-    btn.onclick = () => {
-      pendingVictim = name;
-      // Nach Auswahl direkt zur Hexe
-      witchAction();
-    };
-    list.appendChild(btn);
-  });
-  show('sChooseVictim');
-}
-
-function witchAction(){
-  // Wenn keine Hexe im Deck ist, direkt Ergebnisse anwenden
-  if (!deck.includes('witch')){
-    applyNightResults();
-    return;
-  }
-  // Opfer anzeigen
-  $("currentVictimName").textContent = pendingVictim || '–';
-  show('sWitchAction');
-}
-
-function choosePoison(){
-  // Fülle die Liste möglicher Vergiftungsziele (alle lebenden Spieler außer dem aktuellen Opfer)
-  const list = $("poisonList");
-  list.innerHTML = "";
-  alivePlayers.forEach(name => {
-    if (name === pendingVictim) return;
-    const btn = document.createElement('button');
-    btn.textContent = name;
-    btn.className = 'primary';
-    btn.style.marginBottom = '8px';
-    btn.onclick = () => {
-      poisonVictim = name;
-      applyNightResults();
-    };
-    list.appendChild(btn);
-  });
-  show('sWitchPoison');
-}
-
-function applyNightResults(){
-  // Ermitteln der Opfer der Nacht
-  deathLastNight = [];
-  if (pendingVictim && pendingVictim !== savedVictim) deathLastNight.push(pendingVictim);
-  if (poisonVictim) deathLastNight.push(poisonVictim);
-  // Doppelte entfernen
-  deathLastNight = Array.from(new Set(deathLastNight));
-  // Lebende Spieler aktualisieren
-  if (deathLastNight.length > 0){
-    alivePlayers = alivePlayers.filter(n => !deathLastNight.includes(n));
-  }
-  // Anzeige der Opfer
-  const dl = $("deadList");
-  if (deathLastNight.length > 0){
-    dl.textContent = 'Gestorben: ' + deathLastNight.join(', ');
-  } else {
-    dl.textContent = 'Niemand ist gestorben.';
-  }
-  show('sDayResult');
-}
-
-function startVoting(){
-  // Liste der Verdächtigen (alle lebenden Spieler)
-  const list = $("voteList");
-  list.innerHTML = "";
-  alivePlayers.forEach(name => {
-    const btn = document.createElement('button');
-    btn.textContent = name;
-    btn.className = 'primary';
-    btn.style.marginBottom = '8px';
-    btn.onclick = () => {
-      executeVote(name);
-    };
-    list.appendChild(btn);
-  });
-  show('sVote');
-}
-
-function executeVote(name){
-  // Entferne den Spieler aus der Liste der Lebenden
-  if (!name) return;
-  alivePlayers = alivePlayers.filter(n => n !== name);
-  toast(name + ' wurde gelyncht');
-  // Bei weniger als 3 Lebenden ist das Spiel beendet
-  if (alivePlayers.length < 3){
-    alert('Spiel beendet.');
-    show('sStart');
-  } else {
-    // Neue Nacht beginnt
-    startNight();
-  }
-}
-
-/* Event‑Listener für neue Screens */
-$("cancelChooseVictim").addEventListener("click", ()=>{
-  // Zurück ohne Auswahl – Spieler müssen erneut beginnen oder Runde fortsetzen
-  show('sRound');
-});
-$("witchHeal").addEventListener("click", ()=>{
-  savedVictim = pendingVictim;
-  applyNightResults();
-});
+/* Die komplexe Nacht-/Tag-Logik bleibt definiert, wird aber aktuell nicht gestartet */
+function startNight(){ pendingVictim = null; savedVictim = null; poisonVictim = null; deathLastNight = []; chooseVictim(); }
+function chooseVictim(){ const list = $("victimList"); list.innerHTML = ""; alivePlayers.forEach(name => { const btn = document.createElement('button'); btn.textContent = name; btn.className = 'primary'; btn.style.marginBottom = '8px'; btn.onclick = () => { pendingVictim = name; witchAction(); }; list.appendChild(btn); }); show('sChooseVictim'); }
+function witchAction(){ if (!deck.includes('witch')){ applyNightResults(); return; } $("currentVictimName").textContent = pendingVictim || '–'; show('sWitchAction'); }
+function choosePoison(){ const list = $("poisonList"); list.innerHTML = ""; alivePlayers.forEach(name => { if (name === pendingVictim) return; const btn = document.createElement('button'); btn.textContent = name; btn.className = 'primary'; btn.style.marginBottom = '8px'; btn.onclick = () => { poisonVictim = name; applyNightResults(); }; list.appendChild(btn); }); show('sWitchPoison'); }
+function applyNightResults(){ deathLastNight = []; if (pendingVictim && pendingVictim !== savedVictim) deathLastNight.push(pendingVictim); if (poisonVictim) deathLastNight.push(poisonVictim); deathLastNight = Array.from(new Set(deathLastNight)); if (deathLastNight.length > 0){ alivePlayers = alivePlayers.filter(n => !deathLastNight.includes(n)); } const dl = $("deadList"); if (deathLastNight.length > 0){ dl.textContent = 'Gestorben: ' + deathLastNight.join(', '); } else { dl.textContent = 'Niemand ist gestorben.'; } show('sDayResult'); }
+function startVoting(){ const list = $("voteList"); list.innerHTML = ""; alivePlayers.forEach(name => { const btn = document.createElement('button'); btn.textContent = name; btn.className = 'primary'; btn.style.marginBottom = '8px'; btn.onclick = () => { executeVote(name); }; list.appendChild(btn); }); show('sVote'); }
+function executeVote(name){ if (!name) return; alivePlayers = alivePlayers.filter(n => n !== name); toast(name + ' wurde gelyncht'); if (alivePlayers.length < 3){ alert('Spiel beendet.'); show('sStart'); } else { startRound(); } }
+$("cancelChooseVictim").addEventListener("click", ()=>{ show('sRound'); });
+$("witchHeal").addEventListener("click", ()=>{ savedVictim = pendingVictim; applyNightResults(); });
 $("witchPoison").addEventListener("click", choosePoison);
-$("witchSkip").addEventListener("click", ()=>{
-  applyNightResults();
-});
-$("cancelPoison").addEventListener("click", ()=>{
-  poisonVictim = null;
-  witchAction();
-});
+$("witchSkip").addEventListener("click", ()=>{ applyNightResults(); });
+$("cancelPoison").addEventListener("click", ()=>{ poisonVictim = null; witchAction(); });
 $("startVoting").addEventListener("click", startVoting);
-$("endVote").addEventListener("click", ()=>{
-  // Wenn kein Verdächtiger gewählt wurde, einfach neue Nacht starten
-  startNight();
-});
+// Abstimmungs-Beenden-Button startet nun die nächste Runde ohne komplexe Nachtlogik
+$("endVote").addEventListener("click", ()=>{ startRound(); });
 
 /* Swipe-Up: Handoff -> Reveal */
-let startY=null;
-const TH=55;
-document.addEventListener("touchstart", (e)=>{
-  if (!e.touches || e.touches.length!==1) return;
-  startY = e.touches[0].clientY;
-},{passive:true});
-document.addEventListener("touchend", (e)=>{
-  if (startY==null) return;
-  if (!screens.sHandoff.classList.contains("show")) { startY=null; return; }
-  const t = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
-  if (!t) { startY=null; return; }
-  const dy = startY - t.clientY;
-  startY=null;
-  if (dy > TH) showReveal();
-},{passive:true});
+let startY=null; const TH=55;
+document.addEventListener("touchstart", (e)=>{ if (!e.touches || e.touches.length!==1) return; startY = e.touches[0].clientY; },{passive:true});
+document.addEventListener("touchend", (e)=>{ if (startY==null) return; if (!screens.sHandoff.classList.contains("show")) { startY=null; return; } const t = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null; if (!t) { startY=null; return; } const dy = startY - t.clientY; startY=null; if (dy > TH) showReveal(); },{passive:true});
 </script>
 </body>
-</html>
