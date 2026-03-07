@@ -1,3 +1,5 @@
+<!doctype html>
+<html lang="de">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -322,6 +324,7 @@
     <div class="pill">🌙☀️ Runde</div>
     <h2 id="roundTitle">Nachtphase</h2>
     <div class="muted" id="roundText">—</div>
+    <div class="muted" id="roundMeta" style="margin-top:8px;font-size:13px"></div>
     <div class="row" style="margin-top:16px">
       <button id="roundNext" class="primary">Weiter</button>
       <button id="roundEnd">Spiel beenden</button>
@@ -413,6 +416,19 @@ const $ = (id)=>document.getElementById(id);
 const screens = ["sStart","sNames","sMode","sCustom","sHandoff","sReveal","sRound"].reduce((a,k)=>(a[k]=$(k),a),{});
 function show(screenId){ Object.values(screens).forEach(s=>s.classList.remove("show")); screens[screenId].classList.add("show"); }
 function toast(msg, ms=1600){ const t = $("toast"); t.textContent = msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), ms); }
+function resetGame(){
+  players = [];
+  alivePlayers = [];
+  deck = [];
+  dealIndex = 0;
+  roundStep = 0;
+  pendingVictim = null;
+  savedVictim = null;
+  poisonVictim = null;
+  deathLastNight = [];
+  $("nextPlayerBtn").classList.remove("show");
+  if (nextTimer) clearTimeout(nextTimer);
+}
 
 /* Audio + Voice */
 let audioCtx=null, audioUnlocked=false;
@@ -513,6 +529,19 @@ function startRound(){
   show('sRound');
   renderRoundStep();
 }
+function aliveWerewolves(){
+  return alivePlayers.filter((name)=>{
+    const idx = players.indexOf(name);
+    return idx >= 0 && deck[idx] === 'werewolf';
+  }).length;
+}
+function checkWinCondition(){
+  const wolves = aliveWerewolves();
+  const villagers = alivePlayers.length - wolves;
+  if (wolves === 0) return 'Dorf';
+  if (wolves >= villagers) return 'Werwölfe';
+  return null;
+}
 function renderRoundStep(){
   // Ermitteln, welche Sonderrollen im Deck vorhanden sind
   const hasSeer    = deck.includes('seer');
@@ -546,6 +575,7 @@ function renderRoundStep(){
   const step = steps[ roundStep % steps.length ];
   $( 'roundTitle' ).textContent = step.t;
   $( 'roundText' ).textContent  = step.x;
+  $('roundMeta').textContent = `Lebend: ${alivePlayers.length}/${players.length} • Werwölfe im Spiel: ${deck.filter(r=>r==='werewolf').length}`;
   // Text ansagen (die Stimme überspringt Rollennamen automatisch)
   speak(step.x);
 }
@@ -558,7 +588,7 @@ $("modeRandom").addEventListener("click", ()=>{ beginDeal(buildRandomDeck()); })
 $("modeCustom").addEventListener("click", ()=>{ initCustomCounts(); renderCustom(); show("sCustom"); });
 $("customBack").addEventListener("click", ()=>show("sMode"));
 $("customStart").addEventListener("click", ()=>{ const d = buildCustomDeck(); if (!d){ toast("Zusammenstellung stimmt nicht."); return; } beginDeal(d); });
-$("abortDeal").addEventListener("click", ()=>{ if (confirm("Zurück zum Start?")) show("sStart"); });
+$("abortDeal").addEventListener("click", ()=>{ if (confirm("Zurück zum Start?")){ resetGame(); show("sStart"); } });
 $("revealTest").addEventListener("click", showReveal);
 $("roleInfoBtn").addEventListener("click", ()=>{ const r = ROLE[currentRoleKey]; if (!r) return; $("roleInfoBox").textContent = r.info; $("roleInfoBox").classList.add("show"); speak(r.info); });
 $("sfxBtn").addEventListener("click", ()=>sfx(currentRoleKey));
@@ -596,16 +626,16 @@ $("roundNext").addEventListener("click", () => {
     // Andernfalls nächsten Text anzeigen
     renderRoundStep();
 });
-$("roundEnd").addEventListener("click", ()=>{ if (confirm("Spiel beenden?")) show("sStart"); });
+$("roundEnd").addEventListener("click", ()=>{ if (confirm("Spiel beenden?")){ resetGame(); show("sStart"); } });
 
 /* Die komplexe Nacht-/Tag-Logik bleibt definiert, wird aber aktuell nicht gestartet */
 function startNight(){ pendingVictim = null; savedVictim = null; poisonVictim = null; deathLastNight = []; chooseVictim(); }
 function chooseVictim(){ const list = $("victimList"); list.innerHTML = ""; alivePlayers.forEach(name => { const btn = document.createElement('button'); btn.textContent = name; btn.className = 'primary'; btn.style.marginBottom = '8px'; btn.onclick = () => { pendingVictim = name; witchAction(); }; list.appendChild(btn); }); show('sChooseVictim'); }
 function witchAction(){ if (!deck.includes('witch')){ applyNightResults(); return; } $("currentVictimName").textContent = pendingVictim || '–'; show('sWitchAction'); }
 function choosePoison(){ const list = $("poisonList"); list.innerHTML = ""; alivePlayers.forEach(name => { if (name === pendingVictim) return; const btn = document.createElement('button'); btn.textContent = name; btn.className = 'primary'; btn.style.marginBottom = '8px'; btn.onclick = () => { poisonVictim = name; applyNightResults(); }; list.appendChild(btn); }); show('sWitchPoison'); }
-function applyNightResults(){ deathLastNight = []; if (pendingVictim && pendingVictim !== savedVictim) deathLastNight.push(pendingVictim); if (poisonVictim) deathLastNight.push(poisonVictim); deathLastNight = Array.from(new Set(deathLastNight)); if (deathLastNight.length > 0){ alivePlayers = alivePlayers.filter(n => !deathLastNight.includes(n)); } const dl = $("deadList"); if (deathLastNight.length > 0){ dl.textContent = 'Gestorben: ' + deathLastNight.join(', '); } else { dl.textContent = 'Niemand ist gestorben.'; } show('sDayResult'); }
+function applyNightResults(){ deathLastNight = []; if (pendingVictim && pendingVictim !== savedVictim) deathLastNight.push(pendingVictim); if (poisonVictim) deathLastNight.push(poisonVictim); deathLastNight = Array.from(new Set(deathLastNight)); if (deathLastNight.length > 0){ alivePlayers = alivePlayers.filter(n => !deathLastNight.includes(n)); } const dl = $("deadList"); if (deathLastNight.length > 0){ dl.textContent = 'Gestorben: ' + deathLastNight.join(', '); } else { dl.textContent = 'Niemand ist gestorben.'; } const winner = checkWinCondition(); if (winner){ alert(`Spiel beendet: ${winner} gewinnen!`); resetGame(); show('sStart'); return; } show('sDayResult'); }
 function startVoting(){ const list = $("voteList"); list.innerHTML = ""; alivePlayers.forEach(name => { const btn = document.createElement('button'); btn.textContent = name; btn.className = 'primary'; btn.style.marginBottom = '8px'; btn.onclick = () => { executeVote(name); }; list.appendChild(btn); }); show('sVote'); }
-function executeVote(name){ if (!name) return; alivePlayers = alivePlayers.filter(n => n !== name); toast(name + ' wurde gelyncht'); if (alivePlayers.length < 3){ alert('Spiel beendet.'); show('sStart'); } else { startRound(); } }
+function executeVote(name){ if (!name) return; alivePlayers = alivePlayers.filter(n => n !== name); toast(name + ' wurde gelyncht'); const winner = checkWinCondition(); if (winner){ alert(`Spiel beendet: ${winner} gewinnen!`); resetGame(); show('sStart'); return; } startRound(); }
 $("cancelChooseVictim").addEventListener("click", ()=>{ show('sRound'); });
 $("witchHeal").addEventListener("click", ()=>{ savedVictim = pendingVictim; applyNightResults(); });
 $("witchPoison").addEventListener("click", choosePoison);
@@ -621,3 +651,4 @@ document.addEventListener("touchstart", (e)=>{ if (!e.touches || e.touches.lengt
 document.addEventListener("touchend", (e)=>{ if (startY==null) return; if (!screens.sHandoff.classList.contains("show")) { startY=null; return; } const t = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null; if (!t) { startY=null; return; } const dy = startY - t.clientY; startY=null; if (dy > TH) showReveal(); },{passive:true});
 </script>
 </body>
+</html>
